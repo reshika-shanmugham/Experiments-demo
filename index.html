@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <!-- Ensure mobile devices scale the page correctly -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Thermal Runaway Propagation & Emergency Battery Isolation System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thermal Runaway Propagation &amp; Emergency Battery Isolation System</title>
   <meta name="description" content="Interactive simulation of thermal runaway propagation across battery cells with emergency isolation barrier deployment.">
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -94,13 +94,11 @@
 
   </div><!-- end ms1-layout -->
 
-  <!-- Bottom Row: Selection & Proceed -->
+  <!-- Bottom Row: Material Selection + Proceed Button -->
   <div class="ms1-bottom-row">
     <div class="ms1-selection-panel">
-      <div class="ms1-selection-text">
-        <p>Based on your tests, choose the barrier material to use in <strong>Milestone 2</strong>:</p>
-      </div>
-      <select id="ms1-final-select" class="ms1-select ms1-final-dropdown">
+      <p class="ms1-selection-label">Based on your tests, choose the barrier material to use in <strong>Milestone 2</strong>:</p>
+      <select id="ms1-final-select" class="ms1-select">
         <option value="" disabled selected>Select a material...</option>
         <option value="237" data-name="Aluminum" data-c="897">Aluminum</option>
         <option value="50" data-name="Steel" data-c="500">Steel</option>
