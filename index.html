@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Thermal Runaway Propagation &amp; Emergency Battery Isolation System</title>
+  <!-- Ensure mobile devices scale the page correctly -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Thermal Runaway Propagation & Emergency Battery Isolation System</title>
   <meta name="description" content="Interactive simulation of thermal runaway propagation across battery cells with emergency isolation barrier deployment.">
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -13,8 +14,9 @@
   <h1>Thermal Runaway Propagation &amp; Emergency Battery Isolation System</h1>
 </header>
 
-
-<!--  MILESTONE 1  -->
+<!-- ========================================== -->
+<!-- MILESTONE 1: Material Selection            -->
+<!-- ========================================== -->
 <div id="milestone-1" class="ms-page">
 
   <div class="ms-page-header">
@@ -23,10 +25,11 @@
     <p>Test different materials to find the best thermal insulator to stop heat propagation. Complete the quick check at the bottom to lock in the barrier for Milestone 2.</p>
   </div>
 
-  <div class="ms1-layout" style="display: flex; gap: 1.6rem; align-items: stretch; margin-bottom: 1.4rem;">
+  <div class="ms1-layout">
     
-    <div class="ms1-col" style="flex: 1; display: flex; flex-direction: column; gap: 1.1rem;">
-      <div class="ms1-concept-box" style="height: 100%; box-sizing: border-box;">
+    <!-- Left Panel: Concept -->
+    <div class="ms1-col">
+      <div class="ms1-concept-box">
         <p><strong>Thermal Conductivity (k)</strong> measures how easily heat flows through a material. A lower <em>k</em> value means the material is a better insulator. In an emergency battery isolation system, you want a material that prevents heat from bleeding into adjacent cells.</p>
         <div class="ms1-formula-display">
           <div class="ms1-formula-main">Heat Transfer Rate &prop; k &times; (T<sub>hot</sub> - T<sub>cool</sub>)</div>
@@ -34,8 +37,9 @@
       </div>
     </div>
 
-    <div class="ms1-col" style="flex: 1;">
-      <div class="ms1-calc-section" style="height: 100%; box-sizing: border-box;">
+    <!-- Middle Panel: Testing Rig -->
+    <div class="ms1-col">
+      <div class="ms1-calc-section">
         <h3 class="ms1-section-title">Material Testing Rig</h3>
         <p class="ms1-hint">Select a barrier material to test its conductivity.</p>
 
@@ -49,9 +53,9 @@
           </select>
         </div>
 
-        <button id="ms1-run-test-btn" class="btn-primary" style="margin-top: 10px;">Run Thermal Test</button>
+        <button id="ms1-run-test-btn" class="btn-primary ms1-btn-spacing">Run Thermal Test</button>
 
-        <div class="ms1-result-panel" style="margin-top: 15px;">
+        <div class="ms1-result-panel">
           <div class="ms1-result-item">
             <div class="ms1-res-label">Time to Critical Temp (80&deg;C)</div>
             <div class="ms1-res-value" id="ms1-test-time">-- s</div>
@@ -65,8 +69,9 @@
       </div>
     </div>
 
-    <div class="ms1-col" style="flex: 1;">
-      <div class="ms1-comparison-section" style="height: 100%; box-sizing: border-box;">
+    <!-- Right Panel: Live Monitor -->
+    <div class="ms1-col">
+      <div class="ms1-comparison-section">
         <h3 class="ms1-section-title">Live Test Monitor</h3>
         <p class="ms1-hint">Watch how fast the normal cell heats up from 25&deg;C to 80&deg;C.</p>
         
@@ -89,12 +94,13 @@
 
   </div><!-- end ms1-layout -->
 
-  <div class="ms1-bottom-row" style="display: flex; gap: 1rem; margin-bottom: 1.2rem; align-items: stretch;">
-    <div class="ms1-selection-panel" style="flex: 0.75; background: white; border: 1px solid #e0e0e0; padding: 1rem 1.3rem; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.04); display: flex; align-items: center; gap: 1rem;">
-      <div style="flex: 1;">
-        <p style="margin: 0; font-size: 0.9rem; display: inline-block; vertical-align: top; max-width: 90%;">Based on your tests, choose the barrier material to use in <strong>Milestone 2</strong>:</p>
+  <!-- Bottom Row: Selection & Proceed -->
+  <div class="ms1-bottom-row">
+    <div class="ms1-selection-panel">
+      <div class="ms1-selection-text">
+        <p>Based on your tests, choose the barrier material to use in <strong>Milestone 2</strong>:</p>
       </div>
-      <select id="ms1-final-select" class="ms1-select" style="width:200px;">
+      <select id="ms1-final-select" class="ms1-select ms1-final-dropdown">
         <option value="" disabled selected>Select a material...</option>
         <option value="237" data-name="Aluminum" data-c="897">Aluminum</option>
         <option value="50" data-name="Steel" data-c="500">Steel</option>
@@ -103,8 +109,8 @@
       </select>
     </div>
     
-    <div class="ms1-proceed-panel" style="flex: 0.25; display: flex;">
-      <button class="ms1-continue-btn" id="ms1-continue" disabled style="width:100%; margin:0; padding: 0.5rem; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 1.1rem;">
+    <div class="ms1-proceed-panel">
+      <button class="ms1-continue-btn" id="ms1-continue" disabled>
         Proceed to Milestone 2 &nbsp;&#9658;
       </button>
     </div>
@@ -112,7 +118,9 @@
 
 </div><!-- end milestone-1 -->
 
-<!-- ******************* MILESTONE 2 ****************** -->
+<!-- ========================================== -->
+<!-- MILESTONE 2: The Main Simulation           -->
+<!-- ========================================== -->
 <div id="milestone-2" class="ms-page" style="display:none;">
 
   <div class="ms-page-header ms2-header">
@@ -143,7 +151,7 @@
                 <div class="metric-sq-label">Response Time</div>
                 <div class="metric-sq-value" id="out-response">-</div>
               </div>
-              <div class="metric-sq-card" style="position:relative;">
+              <div class="metric-sq-card position-relative">
                 <button id="btn-history" class="hist-btn">History</button>
                 <div class="metric-sq-label">Damaged<br>Cells</div>
                 <div class="metric-sq-value" id="out-damaged">0</div>
@@ -155,7 +163,7 @@
                 <div class="battery-cell" id="c1">
                   <div class="temp-display"><span id="t1-val">35</span>&deg;C</div>
                 </div>
-                <div class="cell-label">Cell 1<br><span style="color:#2f5d50;font-size:0.85rem;">(Fault Source)</span></div>
+                <div class="cell-label">Cell 1<br><span class="label-subtext">(Fault Source)</span></div>
               </div>
               <div class="gap-container" id="gap-1">
                 <div class="heat-arrow" id="arrow-1">&#9658;&#9658;</div>
@@ -165,7 +173,7 @@
                 <div class="battery-cell" id="c2">
                   <div class="temp-display"><span id="t2-val">35</span>&deg;C</div>
                 </div>
-                <div class="cell-label">Cell 2<br><span style="color:#555;font-size:0.85rem;">(Middle)</span></div>
+                <div class="cell-label">Cell 2<br><span class="label-subtext-mid">(Middle)</span></div>
               </div>
               <div class="gap-container" id="gap-2">
                 <div class="heat-arrow" id="arrow-2">&#9658;&#9658;</div>
@@ -174,7 +182,7 @@
                 <div class="battery-cell" id="c3">
                   <div class="temp-display"><span id="t3-val">35</span>&deg;C</div>
                 </div>
-                <div class="cell-label">Cell 3<br><span style="color:#555;font-size:0.85rem;">(End)</span></div>
+                <div class="cell-label">Cell 3<br><span class="label-subtext-mid">(End)</span></div>
               </div>
               <div class="gap-container" id="gap-3">
                 <div class="heat-arrow" id="arrow-3" style="opacity:0;">&#9658;&#9658;</div>
@@ -222,14 +230,14 @@
         </div>
 
         <button id="btn-trigger" class="btn-primary">Trigger Fault</button>
-        <button id="btn-deploy" class="btn-danger" style="margin-top:15px;display:none;">DEPLOY EMERGENCY BARRIER</button>
-        <button id="btn-reset" class="btn-secondary" style="margin-top:20px;">Reset Simulation</button>
+        <button id="btn-deploy" class="btn-danger deploy-btn-spacing">DEPLOY EMERGENCY BARRIER</button>
+        <button id="btn-reset" class="btn-secondary reset-btn-spacing">Reset Simulation</button>
       </div>
 
     </div>
 
     <div class="below-fold">
-      <div class="live-math-box" style="width:100%;">
+      <div class="live-math-box full-width">
         <div class="math-formula"><strong>Dynamic Event Log</strong></div>
         <div class="math-line event-log-line" id="event-log-text">System initialized. Awaiting fault trigger...</div>
       </div>
@@ -243,13 +251,14 @@
   &copy; 2026 Thermal Runaway Propagation &amp; Emergency Battery Isolation System
 </footer>
 
-<div id="history-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:100;align-items:center;justify-content:center;">
-  <div style="background:white;padding:2rem;border-radius:8px;width:450px;max-width:90vw;text-align:left;position:relative;">
-    <h3 style="margin-top:0;color:#2f5d50;border-bottom:2px solid #ddd;padding-bottom:10px;margin-bottom:20px;">Simulation Telemetry History</h3>
-    <p style="margin-bottom:10px;"><strong>Total Damaged Cells (&ge;120&deg;C):</strong> <span id="hist-count">0</span></p>
-    <p style="margin-bottom:10px;"><strong>First Breach Timestamp:</strong> <span id="hist-breach">N/A</span></p>
-    <p style="margin-bottom:20px;"><strong>Active Cooling Recovery Duration:</strong> <span id="hist-cooling">N/A</span></p>
-    <button id="close-history" style="background:#555;color:white;padding:10px;width:100%;border:none;border-radius:5px;cursor:pointer;font-size:1.1rem;font-weight:bold;">Close Panel</button>
+<!-- Telemetry Modal -->
+<div id="history-modal" class="modal-overlay">
+  <div class="modal-content">
+    <h3 class="modal-header">Simulation Telemetry History</h3>
+    <p class="modal-text"><strong>Total Damaged Cells (&ge;120&deg;C):</strong> <span id="hist-count">0</span></p>
+    <p class="modal-text"><strong>First Breach Timestamp:</strong> <span id="hist-breach">N/A</span></p>
+    <p class="modal-text"><strong>Active Cooling Recovery Duration:</strong> <span id="hist-cooling">N/A</span></p>
+    <button id="close-history" class="modal-close-btn">Close Panel</button>
   </div>
 </div>
 
