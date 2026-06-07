@@ -3,6 +3,14 @@
 // We've written this so you can read along and see how the math becomes a visual simulation.
 
 // ==============================================================================
+// IMPORTANT: We wrap EVERYTHING inside DOMContentLoaded.
+// This guarantees the browser has finished building the entire HTML page
+// before our JavaScript tries to find elements. Without this, on mobile phones,
+// the script can run too early and crash because the HTML elements don't exist yet.
+// ==============================================================================
+document.addEventListener('DOMContentLoaded', function() {
+
+// ==============================================================================
 // GLOBAL VARIABLES FROM MILESTONE 1
 // We need to save the student's barrier choice so we can use it in Milestone 2.
 // ==============================================================================
@@ -97,7 +105,7 @@ function getCellColorBasedOnTemperature(temperature) {
   let green = Math.round(216 + (53 - 216) * ratio);
   let blue  = Math.round(230 + (69 - 230) * ratio);
   
-  return `rgb(${red},${green},${blue})`;
+  return 'rgb(' + red + ',' + green + ',' + blue + ')';
 }
 
 // Resets the small material test back to its starting conditions
@@ -108,7 +116,7 @@ function resetMaterialTest() {
   normalCellTemp = 25;
   
   // Reset the text displays
-  normalCellTempText.innerText = '25.0°C';
+  normalCellTempText.innerText = '25.0\u00B0C';
   testTimeResult.innerText = '-- s';
   testVerdictResult.innerText  = '--';
   
@@ -138,7 +146,7 @@ runTestButton.addEventListener('click', function() {
   heatTransferArrows.style.opacity = 1; // Show the heat arrows moving!
   
   // Get the Thermal Conductivity (k) of the material the user chose
-  const thermalConductivity = parseFloat(materialDropdown.value);
+  var thermalConductivity = parseFloat(materialDropdown.value);
   
   // Start a loop that runs every 50 milliseconds to simulate time passing
   testInterval = setInterval(function() {
@@ -146,17 +154,17 @@ runTestButton.addEventListener('click', function() {
     
     // THE PHYSICS FORMULA: Fourier's Law of Heat Conduction
     // Heat Transfer Rate depends on conductivity (k) and the temperature difference.
-    // The hot cell is stuck at 120°C, so the difference is (120 - normalCellTemp)
-    let tempDifference = 120 - normalCellTemp;
-    let tempIncrease = thermalConductivity * 0.0002 * tempDifference;
+    // The hot cell is stuck at 120 degrees, so the difference is (120 - normalCellTemp)
+    var tempDifference = 120 - normalCellTemp;
+    var tempIncrease = thermalConductivity * 0.0002 * tempDifference;
     
     normalCellTemp += tempIncrease;
     
     // Update the visuals
-    normalCellTempText.innerText = normalCellTemp.toFixed(1) + '°C';
+    normalCellTempText.innerText = normalCellTemp.toFixed(1) + '\u00B0C';
     normalCellDisplay.style.backgroundColor = getCellColorBasedOnTemperature(normalCellTemp);
     
-    // Did it reach the critical temperature of 80°C?
+    // Did it reach the critical temperature of 80 degrees?
     if (normalCellTemp >= 80) {
       clearInterval(testInterval); // Stop the test
       isTestRunning = false;
@@ -168,7 +176,7 @@ runTestButton.addEventListener('click', function() {
       testVerdictResult.innerText  = 'FAILED\nHeats up too fast';
       testVerdictResult.style.color = '#dc3545'; // Red text
     } 
-    // Did it survive for a full 10 seconds without reaching 80°C?
+    // Did it survive for a full 10 seconds without reaching 80 degrees?
     else if (testTimer >= 10.0) {
       clearInterval(testInterval); // Stop the test
       isTestRunning = false;
@@ -191,82 +199,82 @@ runTestButton.addEventListener('click', function() {
  */
 
 // --- 1. Find all the Control Panel inputs ---
-const inputInitialTemp = document.getElementById('inp-init-temp');
-const inputCooling     = document.getElementById('inp-cooling');
-const inputDuration    = document.getElementById('inp-duration');
-const inputAutoIso     = document.getElementById('inp-auto-iso');
-const inputMass        = document.getElementById('inp-mass');
+var inputInitialTemp = document.getElementById('inp-init-temp');
+var inputCooling     = document.getElementById('inp-cooling');
+var inputDuration    = document.getElementById('inp-duration');
+var inputAutoIso     = document.getElementById('inp-auto-iso');
+var inputMass        = document.getElementById('inp-mass');
 
 // Find the labels that show the values next to the sliders
-const labelInitialTemp = document.getElementById('lbl-init-temp');
-const labelCooling     = document.getElementById('lbl-cooling');
-const labelDuration    = document.getElementById('lbl-duration');
-const labelMass        = document.getElementById('lbl-mass');
+var labelInitialTemp = document.getElementById('lbl-init-temp');
+var labelCooling     = document.getElementById('lbl-cooling');
+var labelDuration    = document.getElementById('lbl-duration');
+var labelMass        = document.getElementById('lbl-mass');
 
 // Find the buttons
-const buttonTrigger = document.getElementById('btn-trigger');
-const buttonDeploy  = document.getElementById('btn-deploy');
-const buttonReset   = document.getElementById('btn-reset');
+var buttonTrigger = document.getElementById('btn-trigger');
+var buttonDeploy  = document.getElementById('btn-deploy');
+var buttonReset   = document.getElementById('btn-reset');
 
 // --- 2. Find the Visual Elements of the Battery Pack ---
-const batteryCells = [
+var batteryCells = [
   document.getElementById('c1'), // Cell 1
   document.getElementById('c2'), // Cell 2
   document.getElementById('c3')  // Cell 3
 ];
-const redArrow1 = document.getElementById('arrow-1'); // Heat flowing from Cell 1 -> 2
-const redArrow2 = document.getElementById('arrow-2'); // Heat flowing from Cell 2 -> 3
-const isolationBarrierBox = document.getElementById('barrier');
+var redArrow1 = document.getElementById('arrow-1'); // Heat flowing from Cell 1 -> 2
+var redArrow2 = document.getElementById('arrow-2'); // Heat flowing from Cell 2 -> 3
+var isolationBarrierBox = document.getElementById('barrier');
 
 // Output text displays
-const outputLiveCalculation = document.getElementById('out-live-calc');
-const outputLiveTemperatures = document.getElementById('out-live-temps');
-const outputLiveDamagedWarning = document.getElementById('out-live-damaged');
+var outputLiveCalculation = document.getElementById('out-live-calc');
+var outputLiveTemperatures = document.getElementById('out-live-temps');
+var outputLiveDamagedWarning = document.getElementById('out-live-damaged');
 
-const outputPeakTemp   = document.getElementById('out-peak');
-const outputResponseTime = document.getElementById('out-response');
-const outputDamagedCount = document.getElementById('out-damaged');
+var outputPeakTemp   = document.getElementById('out-peak');
+var outputResponseTime = document.getElementById('out-response');
+var outputDamagedCount = document.getElementById('out-damaged');
 
-const buttonHistoryModal = document.getElementById('btn-history');
-const historyModalBox    = document.getElementById('history-modal');
-const buttonCloseHistory = document.getElementById('close-history');
-const historyCountText   = document.getElementById('hist-count');
-const historyBreachText  = document.getElementById('hist-breach');
-const historyCoolingText = document.getElementById('hist-cooling');
+var buttonHistoryModal = document.getElementById('btn-history');
+var historyModalBox    = document.getElementById('history-modal');
+var buttonCloseHistory = document.getElementById('close-history');
+var historyCountText   = document.getElementById('hist-count');
+var historyBreachText  = document.getElementById('hist-breach');
+var historyCoolingText = document.getElementById('hist-cooling');
 
 // --- 3. Define the Core State Variables ---
 // These variables represent the mathematical state of the battery pack at any given moment.
 
-let currentInitialTemp = 35;
-let currentCoolingEff  = 50;
-let currentFaultDuration = 7; // How long the short-circuit lasts in seconds
-let currentCellMass    = 0.5; // Mass of the battery cell in kg
-let currentCellSpecificHeat = 900; // Will be replaced by chosen material
-let currentThermalCapacity  = currentCellMass * currentCellSpecificHeat; // m * c
+var currentInitialTemp = 35;
+var currentCoolingEff  = 50;
+var currentFaultDuration = 7; // How long the short-circuit lasts in seconds
+var currentCellMass    = 0.5; // Mass of the battery cell in kg
+var currentCellSpecificHeat = 900; // Will be replaced by chosen material
+var currentThermalCapacity  = currentCellMass * currentCellSpecificHeat; // m * c
 
-let currentCellTemperatures = [25, 25, 25]; // Starts at room temp
-let peakCellTemperatures    = [25, 25, 25]; // Keeps track of the highest temp each cell reached
+var currentCellTemperatures = [25, 25, 25]; // Starts at room temp
+var peakCellTemperatures    = [25, 25, 25]; // Keeps track of the highest temp each cell reached
 
 // Physics Constants
-const TICK_RATE_MS = 50;  // The simulation updates every 50 milliseconds
-const TIME_STEP    = 0.05; // 50ms is 0.05 seconds
-const CRITICAL_TEMPERATURE = 80; // The threshold where thermal runaway begins
+var TICK_RATE_MS = 50;  // The simulation updates every 50 milliseconds
+var TIME_STEP    = 0.05; // 50ms is 0.05 seconds
+var CRITICAL_TEMPERATURE = 80; // The threshold where thermal runaway begins
 
-let isMainSimActive      = false;
-let hasBarrierDropped    = false;
-let activeFaultTimer     = 0;
-let mainSimInterval      = null;
-let highestTempReached   = 25;
+var isMainSimActive      = false;
+var hasBarrierDropped    = false;
+var activeFaultTimer     = 0;
+var mainSimInterval      = null;
+var highestTempReached   = 25;
 
-let damagedCellsSet      = new Set(); // Stores which cells are destroyed
-let totalDamagedCells    = 0;
-let timeOfFirstBreach    = null;
-let timeOfFullCooling    = null;
-let completelyBurntOutCells = new Set(); // Cells that hit 120°C and died
+var damagedCellsSet      = new Set(); // Stores which cells are destroyed
+var totalDamagedCells    = 0;
+var timeOfFirstBreach    = null;
+var timeOfFullCooling    = null;
+var completelyBurntOutCells = new Set(); // Cells that hit 120 degrees and died
 
-let currentlyDeployedGapIndex = 0; // Where did the barrier fall? 0 = gap 1, 1 = gap 2.
-let didBarrierButtonAppear    = false;
-let totalHeatEnergyGenerated  = 0; // Keeping track of Joules
+var currentlyDeployedGapIndex = 0; // Where did the barrier fall? 0 = gap 1, 1 = gap 2.
+var didBarrierButtonAppear    = false;
+var totalHeatEnergyGenerated  = 0; // Keeping track of Joules
 
 // --- 4. Listen for User Input on the Sliders ---
 
@@ -277,7 +285,7 @@ inputInitialTemp.addEventListener('input', function(event) {
     return; 
   }
   currentInitialTemp = parseInt(event.target.value);
-  labelInitialTemp.innerText = currentInitialTemp + '°C';
+  labelInitialTemp.innerText = currentInitialTemp + '\u00B0C';
   recalculateStartingMath(); // Reset the math
 });
 
@@ -333,17 +341,17 @@ buttonDeploy.addEventListener('click', function() {
   if (hasBarrierDropped) return; // Can only drop it once!
   
   // Find out which gap to drop it into to protect the remaining safe cells
-  let indexOfLastDangerousCell = -1;
-  for (let i = 0; i < 3; i++) {
+  var indexOfLastDangerousCell = -1;
+  for (var i = 0; i < 3; i++) {
     if (currentCellTemperatures[i] >= 80 || completelyBurntOutCells.has(i)) {
       indexOfLastDangerousCell = i;
     }
   }
   
-  let targetGapIndex = indexOfLastDangerousCell === -1 ? 0 : indexOfLastDangerousCell;
+  var targetGapIndex = indexOfLastDangerousCell === -1 ? 0 : indexOfLastDangerousCell;
   
   // Move the barrier box to the correct gap in the HTML
-  let targetGapBox;
+  var targetGapBox;
   if (targetGapIndex === 0) {
     targetGapBox = document.getElementById('gap-1');
   } else if (targetGapIndex === 1) {
@@ -394,37 +402,37 @@ if (buttonHistoryModal) {
 // These functions generate the glowing colors based on the cell's temperature.
 
 // Colors with 70% opacity
-const COLOR_HEAT_LOW  = [225, 173, 1,   0.70]; // Yellow
-const COLOR_HEAT_MID  = [255, 165, 0,   0.70]; // Orange
-const COLOR_HEAT_HIGH = [204, 119, 34,  0.70]; // Red/Orange
+var COLOR_HEAT_LOW  = [225, 173, 1,   0.70]; // Yellow
+var COLOR_HEAT_MID  = [255, 165, 0,   0.70]; // Orange
+var COLOR_HEAT_HIGH = [204, 119, 34,  0.70]; // Red/Orange
 
-const COLOR_COOL_HIGH = [4,   146, 194, 0.70]; // Deep blue
-const COLOR_COOL_MID  = [82,  178, 191, 0.70]; // Medium blue
-const COLOR_COOL_LOW  = [130, 238, 253, 0.70]; // Light cyan
+var COLOR_COOL_HIGH = [4,   146, 194, 0.70]; // Deep blue
+var COLOR_COOL_MID  = [82,  178, 191, 0.70]; // Medium blue
+var COLOR_COOL_LOW  = [130, 238, 253, 0.70]; // Light cyan
 
 // Converts an array into a CSS string
 function convertToCssRgba(colorArray) { 
-  return `rgba(${colorArray[0]}, ${colorArray[1]}, ${colorArray[2]}, ${colorArray[3].toFixed(2)})`; 
+  return 'rgba(' + colorArray[0] + ', ' + colorArray[1] + ', ' + colorArray[2] + ', ' + colorArray[3].toFixed(2) + ')'; 
 }
 
 // Extracts an array from a CSS string
 function parseCssRgba(cssString) {
-  let parts = cssString.match(/[\d.]+/g);
+  var parts = cssString.match(/[\d.]+/g);
   return [parseFloat(parts[0]), parseFloat(parts[1]), parseFloat(parts[2]), parseFloat(parts[3])];
 }
 
 // Blends two colors together based on a ratio between 0.0 and 1.0
 function mixColors(color1, color2, ratio) {
-  let red   = Math.round(color1[0] + (color2[0] - color1[0]) * ratio);
-  let green = Math.round(color1[1] + (color2[1] - color1[1]) * ratio);
-  let blue  = Math.round(color1[2] + (color2[2] - color1[2]) * ratio);
-  let alpha = (color1[3] + (color2[3] - color1[3]) * ratio).toFixed(2);
-  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+  var red   = Math.round(color1[0] + (color2[0] - color1[0]) * ratio);
+  var green = Math.round(color1[1] + (color2[1] - color1[1]) * ratio);
+  var blue  = Math.round(color1[2] + (color2[2] - color1[2]) * ratio);
+  var alpha = (color1[3] + (color2[3] - color1[3]) * ratio).toFixed(2);
+  return 'rgba(' + red + ', ' + green + ', ' + blue + ', ' + alpha + ')';
 }
 
 // Get the glowing red/orange color as it heats up
 function calculateHeatingColor(temperature) {
-  let heatDegrees = temperature - 25;
+  var heatDegrees = temperature - 25;
   if (heatDegrees <= 0) return convertToCssRgba(COLOR_HEAT_LOW);
   if (heatDegrees < 55) {
     return mixColors(COLOR_HEAT_LOW, COLOR_HEAT_MID, heatDegrees / 55);
@@ -434,8 +442,8 @@ function calculateHeatingColor(temperature) {
 
 // Get the final cell color, turning blue if it is successfully cooling down
 function determineFinalCellColor(currentTemp, cellIndex) {
-  let hottestColor = calculateHeatingColor(peakCellTemperatures[cellIndex]);
-  let dropInTemp   = peakCellTemperatures[cellIndex] - currentTemp;
+  var hottestColor = calculateHeatingColor(peakCellTemperatures[cellIndex]);
+  var dropInTemp   = peakCellTemperatures[cellIndex] - currentTemp;
   
   // If it hasn't cooled down significantly, or the barrier hasn't dropped, stay hot!
   if (dropInTemp <= 0.1 || !hasBarrierDropped) {
@@ -443,7 +451,7 @@ function determineFinalCellColor(currentTemp, cellIndex) {
   }
   
   // Otherwise, start turning blue based on how much it has cooled
-  let hotColorArray = parseCssRgba(hottestColor);
+  var hotColorArray = parseCssRgba(hottestColor);
   if (dropInTemp < 25) {
     return mixColors(hotColorArray, COLOR_COOL_HIGH, dropInTemp / 25);
   }
@@ -455,17 +463,17 @@ function determineFinalCellColor(currentTemp, cellIndex) {
 
 // Updates the telemetry panel tracking peak temperatures and damage
 function updateTelemetryDashboard() {
-  let maximumTempRightNow = Math.max(currentCellTemperatures[0], currentCellTemperatures[1], currentCellTemperatures[2]);
+  var maximumTempRightNow = Math.max(currentCellTemperatures[0], currentCellTemperatures[1], currentCellTemperatures[2]);
   
   if (maximumTempRightNow > highestTempReached) {
     highestTempReached = maximumTempRightNow;
-    outputPeakTemp.innerText = Math.round(highestTempReached) + '°C';
+    outputPeakTemp.innerText = Math.round(highestTempReached) + '\u00B0C';
   }
   
-  let didNewCellTakeDamage = false;
+  var didNewCellTakeDamage = false;
   
-  for (let i = 0; i < currentCellTemperatures.length; i++) {
-    // If a cell hits 120°C, it is structurally damaged permanently
+  for (var i = 0; i < currentCellTemperatures.length; i++) {
+    // If a cell hits 120 degrees, it is structurally damaged permanently
     if (currentCellTemperatures[i] >= 120 && !damagedCellsSet.has(i)) { 
       damagedCellsSet.add(i); 
       didNewCellTakeDamage = true; 
@@ -478,9 +486,9 @@ function updateTelemetryDashboard() {
   }
   
   // Check if everything has safely cooled down
-  let allCellsCooled = true;
-  for (let i = 0; i < currentCellTemperatures.length; i++) {
-    let temp = currentCellTemperatures[i];
+  var allCellsCooled = true;
+  for (var i = 0; i < currentCellTemperatures.length; i++) {
+    var temp = currentCellTemperatures[i];
     if (!completelyBurntOutCells.has(i) && temp > currentInitialTemp + 2) {
       allCellsCooled = false; // There is still a hot, alive cell
     }
@@ -496,7 +504,7 @@ function updateTelemetryDashboard() {
 
 // Renders the colors and numbers onto the screen
 function updateVisualInterface() {
-  for (let i = 0; i < 3; i++) {
+  for (var i = 0; i < 3; i++) {
     // Keep track of the peak temperature for visual memory
     if (currentCellTemperatures[i] > peakCellTemperatures[i]) {
       peakCellTemperatures[i] = currentCellTemperatures[i];
@@ -508,7 +516,7 @@ function updateVisualInterface() {
       batteryCells[i].innerHTML = '<div class="temp-display" style="font-size:1.4rem;color:#ff4444;text-align:center;font-weight:bold;line-height:1.2;">Damaged<br>Cell</div>';
     } else {
       // Normal updating cell
-      batteryCells[i].innerHTML = `<div class="temp-display"><span id="t${i+1}-val">${Math.round(currentCellTemperatures[i])}</span>°C</div>`;
+      batteryCells[i].innerHTML = '<div class="temp-display"><span id="t' + (i+1) + '-val">' + Math.round(currentCellTemperatures[i]) + '</span>\u00B0C</div>';
       batteryCells[i].style.backgroundColor = determineFinalCellColor(currentCellTemperatures[i], i);
     }
   }
@@ -522,43 +530,43 @@ function runPhysicsTick() {
   activeFaultTimer += TIME_STEP; // Time moves forward by 0.05 seconds
   
   // Grab the current temperatures of all three cells
-  let tempCell1 = currentCellTemperatures[0];
-  let tempCell2 = currentCellTemperatures[1];
-  let tempCell3 = currentCellTemperatures[2];
+  var tempCell1 = currentCellTemperatures[0];
+  var tempCell2 = currentCellTemperatures[1];
+  var tempCell3 = currentCellTemperatures[2];
   
-  let powerGenerated = 0; // The energy (Q) being generated by the fault
-  let temperatureRise = 0; // How much the temperature increases this tick
+  var powerGenerated = 0; // The energy (Q) being generated by the fault
+  var temperatureRise = 0; // How much the temperature increases this tick
 
   // Check if any cells have just burnt out completely
-  for (let i = 0; i < currentCellTemperatures.length; i++) {
+  for (var i = 0; i < currentCellTemperatures.length; i++) {
     if (currentCellTemperatures[i] >= 120) {
       completelyBurntOutCells.add(i);
     }
   }
 
   // Calculate cooling inefficiency (lower efficiency means more heat is trapped)
-  const inefficiencyRatio = (100 - currentCoolingEff) / 100;
+  var inefficiencyRatio = (100 - currentCoolingEff) / 100;
   
   // Calculate Power Generation (baseQ). 
   // We scale this by mass so a heavy battery still heats up at a visible speed.
   // We also scale it by Conductivity (k) so materials like Aluminum aggressively heat up faster.
-  const conductivityMultiplier = 1 + (chosenBarrierConductivity * 0.005);
+  var conductivityMultiplier = 1 + (chosenBarrierConductivity * 0.005);
   powerGenerated = 15000 * (currentCellMass / 0.5) * conductivityMultiplier * Math.pow(inefficiencyRatio, 1.5);
   
-  // THERMAL RUNAWAY CORE FORMULA: ΔT = Q / (mass * specific_heat)
+  // THERMAL RUNAWAY CORE FORMULA: deltaT = Q / (mass * specific_heat)
   // We multiply by TIME_STEP because Q is power per second.
   temperatureRise = (powerGenerated / currentThermalCapacity) * TIME_STEP;
 
-  const NORMAL_CONDUCTION = 0.012; // Natural heat bleed between adjacent cells
+  var NORMAL_CONDUCTION = 0.012; // Natural heat bleed between adjacent cells
   
   // Check where the barrier is to determine if it is blocking heat
-  let isBarrierBlockingGap1 = hasBarrierDropped && (currentlyDeployedGapIndex === 0);
-  let isBarrierBlockingGap2 = hasBarrierDropped && (currentlyDeployedGapIndex <= 1);
+  var isBarrierBlockingGap1 = hasBarrierDropped && (currentlyDeployedGapIndex === 0);
+  var isBarrierBlockingGap2 = hasBarrierDropped && (currentlyDeployedGapIndex <= 1);
 
   // CELL 1: The Fault Source
   // If it hasn't burnt out entirely, it can still generate heat
   if (!completelyBurntOutCells.has(0)) {
-    // The fault runs for its set duration. If it reaches 80°C, self-sustaining thermal runaway begins!
+    // The fault runs for its set duration. If it reaches 80 degrees, self-sustaining thermal runaway begins!
     if ((activeFaultTimer <= currentFaultDuration) || (tempCell1 >= CRITICAL_TEMPERATURE)) {
       tempCell1 += temperatureRise;
       totalHeatEnergyGenerated += powerGenerated * TIME_STEP;
@@ -568,7 +576,7 @@ function runPhysicsTick() {
   // CELL 2: Heat Propagation
   // If the barrier is blocking Gap 1, use the chosen material's poor conductivity to slow the heat!
   // Otherwise, use the fast normal conduction.
-  let conductionRate1to2 = isBarrierBlockingGap1 ? (chosenBarrierConductivity * 0.002) : NORMAL_CONDUCTION;
+  var conductionRate1to2 = isBarrierBlockingGap1 ? (chosenBarrierConductivity * 0.002) : NORMAL_CONDUCTION;
   
   tempCell2 += conductionRate1to2 * (tempCell1 - tempCell2); // Heat flows from Cell 1 to Cell 2
   // If Cell 2 gets too hot (>80C) and isn't burnt out, it catches fire too!
@@ -579,7 +587,7 @@ function runPhysicsTick() {
 
   // CELL 3: Heat Propagation
   // Similar logic to gap 1. If barrier is dropped anywhere before Cell 3, it is protected.
-  let conductionRate2to3 = isBarrierBlockingGap2 ? (chosenBarrierConductivity * 0.002) : NORMAL_CONDUCTION;
+  var conductionRate2to3 = isBarrierBlockingGap2 ? (chosenBarrierConductivity * 0.002) : NORMAL_CONDUCTION;
   
   tempCell3 += conductionRate2to3 * (tempCell2 - tempCell3); // Heat flows from Cell 2 to Cell 3
   if (tempCell3 >= CRITICAL_TEMPERATURE && !completelyBurntOutCells.has(2)) {
@@ -592,20 +600,20 @@ function runPhysicsTick() {
   redArrow2.style.opacity = (tempCell2 >= CRITICAL_TEMPERATURE && !hasBarrierDropped) ? 1 : 0;
 
   // Update the Live Calculation readout at the top
-  let totalDeltaTSoFar = Math.max(0, tempCell1 - currentInitialTemp);
-  let totalEnergyQ     = currentCellMass * currentCellSpecificHeat * totalDeltaTSoFar;
+  var totalDeltaTSoFar = Math.max(0, tempCell1 - currentInitialTemp);
+  var totalEnergyQ     = currentCellMass * currentCellSpecificHeat * totalDeltaTSoFar;
   
-  outputLiveCalculation.innerHTML = `Live: Q<sub>gen</sub> = (Mass: ${currentCellMass}kg) &times; (c: ${currentCellSpecificHeat}) &times; (&Delta;T: +${totalDeltaTSoFar.toFixed(1)}&deg;C) = ${Math.round(totalEnergyQ)} J &nbsp;|&nbsp; Time Elapsed: ${activeFaultTimer.toFixed(1)}s &nbsp;|&nbsp; Total Energy Released: ${(totalHeatEnergyGenerated / 1000).toFixed(2)} kJ`;
+  outputLiveCalculation.innerHTML = 'Live: Q<sub>gen</sub> = (Mass: ' + currentCellMass + 'kg) &times; (c: ' + currentCellSpecificHeat + ') &times; (&Delta;T: +' + totalDeltaTSoFar.toFixed(1) + '&deg;C) = ' + Math.round(totalEnergyQ) + ' J &nbsp;|&nbsp; Time Elapsed: ' + activeFaultTimer.toFixed(1) + 's &nbsp;|&nbsp; Total Energy Released: ' + (totalHeatEnergyGenerated / 1000).toFixed(2) + ' kJ';
   
-  outputLiveTemperatures.innerText = `Cell 1: ${tempCell1.toFixed(1)}°C   |   Cell 2: ${tempCell2.toFixed(1)}°C   |   Cell 3: ${tempCell3.toFixed(1)}°C`;
+  outputLiveTemperatures.innerText = 'Cell 1: ' + tempCell1.toFixed(1) + '\u00B0C   |   Cell 2: ' + tempCell2.toFixed(1) + '\u00B0C   |   Cell 3: ' + tempCell3.toFixed(1) + '\u00B0C';
 
   // Update the warning banner for damaged cells
   if (completelyBurntOutCells.size > 0) {
-    let warningList = [];
-    completelyBurntOutCells.forEach(cellIndex => {
-      warningList.push(`Cell ${cellIndex+1}: ${Math.round(peakCellTemperatures[cellIndex])}°C (damaged)`);
+    var warningList = [];
+    completelyBurntOutCells.forEach(function(cellIndex) {
+      warningList.push('Cell ' + (cellIndex+1) + ': ' + Math.round(peakCellTemperatures[cellIndex]) + '\u00B0C (damaged)');
     });
-    outputLiveDamagedWarning.innerText = '⚠ Damaged — ' + warningList.join('   •   ');
+    outputLiveDamagedWarning.innerText = 'Damaged: ' + warningList.join('   |   ');
     outputLiveDamagedWarning.style.display = 'block';
   } else {
     outputLiveDamagedWarning.innerText = '';
@@ -613,16 +621,16 @@ function runPhysicsTick() {
   }
 
   // Auto-Deploy the barrier if the system detects runaway
-  let hottestTemp = Math.max(tempCell1, tempCell2, tempCell3);
-  if (hottestTemp >= CRITICAL_TEMPERATURE && !hasBarrierDropped && !didBarrierButtonAppear && inputAutoIso.checked) {
+  var currentHottestTemp = Math.max(tempCell1, tempCell2, tempCell3);
+  if (currentHottestTemp >= CRITICAL_TEMPERATURE && !hasBarrierDropped && !didBarrierButtonAppear && inputAutoIso.checked) {
     didBarrierButtonAppear = true;
     buttonDeploy.style.display = 'block'; // Make the big red deploy button visible!
   }
 
   // Apply the active cooling system to all cells (even burnt-out husks cool down eventually)
-  const baselineCoolingSpeed = (currentCoolingEff / 100) * 0.9;
+  var baselineCoolingSpeed = (currentCoolingEff / 100) * 0.9;
   // If the barrier is made of Aluminum (high k), it actually helps suck heat away faster!
-  const finalCoolingSpeed = baselineCoolingSpeed * (1 + chosenBarrierConductivity * 0.05);
+  var finalCoolingSpeed = baselineCoolingSpeed * (1 + chosenBarrierConductivity * 0.05);
   
   if (hasBarrierDropped) {
     // Cool down Cell 1
@@ -643,12 +651,12 @@ function runPhysicsTick() {
   }
 
   // Log messages to the terminal text box to tell the student what is happening
-  const eventLogText = document.getElementById('event-log-text');
+  var eventLogText = document.getElementById('event-log-text');
   if (eventLogText) {
     if (completelyBurntOutCells.size > 0) {
       eventLogText.innerText = '[ALERT] Unmitigated runaway has compromised cell structural integrity. Carbonization state triggered...';
     } else if (hasBarrierDropped) {
-      eventLogText.innerText = `[CONTAINMENT DETECTED] Isolation barrier inserted at gap ${currentlyDeployedGapIndex + 1}. Conduction pathway severed. Cooling circulation engaged...`;
+      eventLogText.innerText = '[CONTAINMENT DETECTED] Isolation barrier inserted at gap ' + (currentlyDeployedGapIndex + 1) + '. Conduction pathway severed. Cooling circulation engaged...';
     } else if (tempCell1 >= CRITICAL_TEMPERATURE) {
       eventLogText.innerText = '[CRITICAL ALERT] Cell 1 temperature has exceeded safety bounds. Containment systems primed...';
     } else if (activeFaultTimer <= currentFaultDuration && tempCell1 > currentInitialTemp) {
@@ -665,20 +673,20 @@ function runPhysicsTick() {
   updateVisualInterface();
 
   // Determine if the simulation is over
-  let areAllCellsDestroyed = (completelyBurntOutCells.size === 3);
+  var areAllCellsDestroyed = (completelyBurntOutCells.size === 3);
   
-  let areAllSurvivingCellsCooled = true;
-  for (let i = 0; i < 3; i++) {
-    let isBurnt = completelyBurntOutCells.has(i);
-    let isCooled = currentCellTemperatures[i] <= currentInitialTemp + 2;
+  var areAllSurvivingCellsCooled = true;
+  for (var i = 0; i < 3; i++) {
+    var isBurnt = completelyBurntOutCells.has(i);
+    var isCooled = currentCellTemperatures[i] <= currentInitialTemp + 2;
     if (!isBurnt && !isCooled) {
       areAllSurvivingCellsCooled = false; // Found a cell that is still hot
     }
   }
 
   // Check if the fault ran its course without causing a fire, and the system is stable
-  let hottestTemp = Math.max(tempCell1, tempCell2, tempCell3);
-  let isFaultOverAndSafe = (activeFaultTimer > currentFaultDuration) && (hottestTemp < CRITICAL_TEMPERATURE);
+  var endCheckHottestTemp = Math.max(tempCell1, tempCell2, tempCell3);
+  var isFaultOverAndSafe = (activeFaultTimer > currentFaultDuration) && (endCheckHottestTemp < CRITICAL_TEMPERATURE);
 
   // If everything is completely dead, or everything is safe and cool, or the fault ended safely, end the simulation
   if (areAllCellsDestroyed || (hasBarrierDropped && areAllSurvivingCellsCooled) || isFaultOverAndSafe) {
@@ -710,14 +718,14 @@ function triggerBarrierDrop(reason, gapIndexToDropInto) {
 
 // Updates the small text at the top of the control panel reminding us what we chose in MS1
 function updateInheritedDisplay() {
-  const inheritedMaterialName = document.getElementById('inh-mat');
-  const inheritedSpecificHeat = document.getElementById('inh-c');
+  var inheritedMaterialName = document.getElementById('inh-mat');
+  var inheritedSpecificHeat = document.getElementById('inh-c');
   
   if (inheritedMaterialName) {
     inheritedMaterialName.innerText = chosenBarrierName;
   }
   if (inheritedSpecificHeat) {
-    inheritedSpecificHeat.innerText  = chosenBarrierSpecificHeat + ' J/kg°C';
+    inheritedSpecificHeat.innerText  = chosenBarrierSpecificHeat + ' J/kg\u00B0C';
   }
 }
 
@@ -734,17 +742,17 @@ function recalculateStartingMath() {
   completelyBurntOutCells.clear();
   
   buttonDeploy.style.display = 'none';
-  outputPeakTemp.innerText   = currentInitialTemp + '°C';
+  outputPeakTemp.innerText   = currentInitialTemp + '\u00B0C';
   outputDamagedCount.innerText = '0';
   totalHeatEnergyGenerated = 0;
   
-  outputLiveCalculation.innerHTML = `Live: Q<sub>gen</sub> = (Mass: ${currentCellMass}kg) &times; (c: ${currentCellSpecificHeat}) &times; (&Delta;T: +0.0&deg;C) = 0 J &nbsp;|&nbsp; Time Elapsed: 0.0s &nbsp;|&nbsp; Total Energy Released: 0.00 kJ`;
-  outputLiveTemperatures.innerText  = `Cell 1: ${currentInitialTemp.toFixed(1)}°C   |   Cell 2: ${currentInitialTemp.toFixed(1)}°C   |   Cell 3: ${currentInitialTemp.toFixed(1)}°C`;
+  outputLiveCalculation.innerHTML = 'Live: Q<sub>gen</sub> = (Mass: ' + currentCellMass + 'kg) &times; (c: ' + currentCellSpecificHeat + ') &times; (&Delta;T: +0.0&deg;C) = 0 J &nbsp;|&nbsp; Time Elapsed: 0.0s &nbsp;|&nbsp; Total Energy Released: 0.00 kJ';
+  outputLiveTemperatures.innerText  = 'Cell 1: ' + currentInitialTemp.toFixed(1) + '\u00B0C   |   Cell 2: ' + currentInitialTemp.toFixed(1) + '\u00B0C   |   Cell 3: ' + currentInitialTemp.toFixed(1) + '\u00B0C';
   
   outputLiveDamagedWarning.innerText = '';
   outputLiveDamagedWarning.style.display = 'none';
   
-  const eventLogText = document.getElementById('event-log-text');
+  var eventLogText = document.getElementById('event-log-text');
   if (eventLogText) {
     eventLogText.innerText = 'System initialized. Awaiting fault trigger...';
   }
@@ -777,7 +785,7 @@ function resetSimulation() {
   inputAutoIso.checked    = true;
 
   // Reset the Slider Labels
-  labelInitialTemp.innerText = '35°C';
+  labelInitialTemp.innerText = '35\u00B0C';
   labelCooling.innerText     = '50%';
   labelDuration.innerText    = '7s';
   labelMass.innerText        = '0.5 kg';
@@ -798,3 +806,6 @@ function resetSimulation() {
 
 // --- Run this once when the page loads! ---
 recalculateStartingMath();
+
+// End of DOMContentLoaded wrapper
+});
