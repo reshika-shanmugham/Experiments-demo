@@ -676,8 +676,12 @@ function runPhysicsTick() {
     }
   }
 
-  // If everything is completely dead, or everything is safe and cool, end the simulation
-  if (areAllCellsDestroyed || (hasBarrierDropped && areAllSurvivingCellsCooled)) {
+  // Check if the fault ran its course without causing a fire, and the system is stable
+  let hottestTemp = Math.max(tempCell1, tempCell2, tempCell3);
+  let isFaultOverAndSafe = (activeFaultTimer > currentFaultDuration) && (hottestTemp < CRITICAL_TEMPERATURE);
+
+  // If everything is completely dead, or everything is safe and cool, or the fault ended safely, end the simulation
+  if (areAllCellsDestroyed || (hasBarrierDropped && areAllSurvivingCellsCooled) || isFaultOverAndSafe) {
     clearInterval(mainSimInterval);
     isMainSimActive      = false;
     didBarrierButtonAppear = false;
