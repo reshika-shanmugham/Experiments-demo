@@ -1,7 +1,18 @@
+// simulation.js — Student Project: Thermal Runaway Propagation
+// Welcome to the code! This file runs the entire battery simulation.
+// We've written this so you can read along and see how the math becomes a visual simulation.
+
+// ==============================================================================
+// IMPORTANT: We wrap EVERYTHING inside DOMContentLoaded.
+// This guarantees the browser has finished building the entire HTML page
+// before our JavaScript tries to find elements. Without this, on mobile phones,
+// the script can run too early and crash because the HTML elements don't exist yet.
+// ==============================================================================
 document.addEventListener('DOMContentLoaded', function() {
 
 // ==============================================================================
 // GLOBAL VARIABLES FROM MILESTONE 1
+// We need to save the student's barrier choice so we can use it in Milestone 2.
 // ==============================================================================
 let chosenBarrierConductivity = 0.015;     // Thermal conductivity (k). Default is Aerogel.
 let chosenBarrierName         = 'Aerogel'; // The name of the material.
@@ -10,6 +21,7 @@ let chosenBarrierSpecificHeat = 700;       // Specific heat capacity (c). Defaul
 /* 
  * ==============================================================================
  * MILESTONE NAVIGATION
+ * This section handles switching between Milestone 1 and Milestone 2.
  * ==============================================================================
  */
 function switchMilestone(milestoneNumber) {
@@ -510,10 +522,9 @@ function updateVisualInterface() {
       peakCellTemperatures[i] = currentCellTemperatures[i];
     }
     
-    // If the cell is completely burnt out (>= 120C)
     if (completelyBurntOutCells.has(i)) {
       batteryCells[i].style.backgroundColor = 'rgba(15,15,15,0.95)'; // Burnt black
-      batteryCells[i].innerHTML = '<div class="temp-display" style="font-size:1.4rem;color:#ff4444;text-align:center;font-weight:bold;line-height:1.2;">Damaged<br>Cell</div>';
+      batteryCells[i].innerHTML = '<div class="temp-display damaged-cell-text">Damaged<br>Cell</div>';
     } else {
       // Normal updating cell
       batteryCells[i].innerHTML = '<div class="temp-display"><span id="t' + (i+1) + '-val">' + Math.round(currentCellTemperatures[i]) + '</span>\u00B0C</div>';
