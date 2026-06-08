@@ -1,7 +1,7 @@
 ::: container
 **EXPERIMENT 1**
 
-## Thermal Runaway Propagation & Emergency Battery Isolation System {#thermal-runaway-propagation-emergency-battery-isolation-system .section-title}
+## Thermal Runaway Propagation & Emergency Battery Isolation System 
 
 **THEORY**
 
