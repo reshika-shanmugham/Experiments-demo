@@ -1160,8 +1160,15 @@ footer {
     margin: 0.5rem 0;
   }
   
+  .cell-group {
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    width: auto;
+  }
+  
   .battery-cell {
-    width: 60px;
+    width: 80px;
     height: 130px;
     border: 3px solid #555;
     border-radius: 6px;
@@ -1170,6 +1177,7 @@ footer {
   .battery-cell::before {
     top: -9px;
     left: calc(50% - 16px);
+    right: auto;
     width: 32px;
     height: 9px;
     border-radius: 3px 3px 0 0;
@@ -1177,11 +1185,11 @@ footer {
   }
 
   .temp-display { font-size: 1.1rem; }
-  .damaged-cell-text { font-size: 0.8rem; line-height: 1.1; }
-  .cell-label { font-size: 0.75rem; margin-top: 0.4rem; }
+  .damaged-cell-text { font-size: 0.75rem; line-height: 1.1; }
+  .cell-label { font-size: 0.75rem; margin-top: 0.4rem; text-align: center; }
 
   .gap-container {
-    width: 20px;
+    width: 30px;
     height: 130px;
     align-self: center;
     margin: 0;
@@ -1204,7 +1212,10 @@ footer {
     transform: translate(-50%, -50%);
   }
 
-  .heat-arrow { font-size: 1.1rem; }
+  .heat-arrow { 
+    font-size: 1.1rem; 
+    transform: none;
+  }
 
   .live-math-box { padding: 0.5rem 0.8rem; margin-bottom: 0.6rem; }
   .math-line { font-size: 0.78rem; }
