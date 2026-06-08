@@ -770,9 +770,39 @@ footer {
 */
 
 /* =============================================
-   PORTRAIT: iPads and smaller tablets (<=1024px)
+   COMPACT DESKTOP & TABLET LANDSCAPE (<=1250px)
+   Ensures side-by-side layout fits without horizontal overflow
    ============================================= */
-@media (max-width: 1024px) {
+@media (max-width: 1250px) {
+  .visualizer-column {
+    padding: 1rem;
+    min-width: 0;
+  }
+  .control-column {
+    flex: 0 0 250px;
+    padding: 1rem;
+  }
+  .gap-container {
+    width: 40px;
+  }
+  .metric-sq-card {
+    width: 100px;
+    height: 100px;
+  }
+  .metric-sq-value {
+    font-size: 1.15rem;
+  }
+  .metrics-column {
+    flex: 0 0 100px;
+  }
+}
+
+/* =============================================
+   PORTRAIT: Tablets & Large Mobile (<=920px)
+   Stacks both Milestone 1 and 2 vertically
+   ============================================= */
+@media (max-width: 920px) {
+  /* Milestone 2 stacked layout */
   .main-split { 
     flex-direction: column;
   }
@@ -787,12 +817,7 @@ footer {
     flex: 0 0 auto;
     padding: 1.5rem;
   }
-}
 
-/* =============================================
-   PORTRAIT: Tablets & Large Mobile (<=860px)
-   ============================================= */
-@media (max-width: 860px) {
   /* Stack Milestone 1's columns vertically */
   .ms1-layout { 
     flex-direction: column;
