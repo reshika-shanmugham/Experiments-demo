@@ -1,11 +1,8 @@
 ::: container
-**EXPERIMENT 1**
-
-## Thermal Runaway Propagation & Emergency Battery Isolation System 
 
 **THEORY**
 
-## 1. Electric Vehicle Battery Pack {#electric-vehicle-battery-pack .section-title}
+## 1. Electric Vehicle Battery Pack
 
 The battery pack is the primary energy source of an electric vehicle and
 consists of multiple lithium-ion cells connected together to meet the
@@ -22,9 +19,9 @@ Failure of a single battery cell can affect the performance and safety
 of the entire battery pack, making thermal management an important
 aspect of EV design.
 
-------------------------------------------------------------------------
+---
 
-## 2. Basic Terminologies {#basic-terminologies .section-title}
+## 2. Basic Terminologies
 
 ### Battery Management System (BMS)
 
@@ -58,9 +55,9 @@ detected.
 This helps limit the spread of thermal faults and protects healthy
 battery modules.
 
-------------------------------------------------------------------------
+---
 
-## 3. Governing Thermodynamic Equations {#governing-thermodynamic-equations .section-title}
+## 3. Governing Thermodynamic Equations
 
 ### A. Internal Heat Generation
 
@@ -72,12 +69,14 @@ We calculate that heat using:
 
 **Q = I^2^Rt**
 
-  --- --- -------------------------
-  Q   :   Heat generated (J)
-  I   :   Current flow (A)
-  R   :   Internal resistance (Ω)
-  t   :   Time duration (s)
-  --- --- -------------------------
+---
+
+Q : Heat generated (J)
+I : Current flow (A)
+R : Internal resistance (Ω)
+t : Time duration (s)
+
+---
 
 ### B. Cell Temperature Escalation
 
@@ -89,12 +88,14 @@ jump is tracked with the standard sensible heat formula:
 
 **Q = mcΔT**
 
-  ---- --- -----------------------------------
-  Q    :   Stored heat energy (J)
-  m    :   Mass of the individual cell (g)
-  c    :   Specific heat capacity (J/kg · K)
-  ΔT   :   Temperature change (°C or K)
-  ---- --- -----------------------------------
+---
+
+Q : Stored heat energy (J)
+m : Mass of the individual cell (g)
+c : Specific heat capacity (J/kg · K)
+ΔT : Temperature change (°C or K)
+
+---
 
 ### C. Conductive Heat Transfer (Propagation)
 
@@ -105,10 +106,13 @@ The actual rate of this energy leak is governed by Fourier\'s Law:
 
 **Q = -kA(dT/dx)**
 
-  ------- --- -------------------------------------------------
-  Q       :   Heat transfer rate (W)
-  k       :   Thermal conductivity of the material (W/m · K)
-  A       :   Available surface contact area (m^2^)
-  dT/dx   :   Spatial temperature gradient across the barrier
-  ------- --- -------------------------------------------------
+---
+
+Q : Heat transfer rate (W)
+k : Thermal conductivity of the material (W/m · K)
+A : Available surface contact area (m<sup>2</sup>)
+dT/dx : Spatial temperature gradient across the barrier
+
+---
+
 :::
