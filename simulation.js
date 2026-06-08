@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
 
 // GLOBAL VARIABLES FROM MILESTONE 1
-let chosenBarrierConductivity = 0.015;     // Thermal conductivity (k). Default is Aerogel.
-let chosenBarrierName         = 'Aerogel'; // The name of the material.
+let chosenBarrierConductivity = 0.015;     
+let chosenBarrierName         = 'Aerogel'; 
 let chosenBarrierSpecificHeat = 700;       // Specific heat capacity (c). Default is Aerogel.
 
 // MILESTONE NAVIGATION
