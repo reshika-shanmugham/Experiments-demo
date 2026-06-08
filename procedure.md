@@ -1,40 +1,33 @@
-## **EXPERIMENT 1** 
-
-## **Thermal Runaway Propagation & Emergency Battery Isolation Systems** 
+## **PROCEDURE** 
 
 ## **Milestone 1: Isolation Barrier Material Selection** 
+1. Open the simulation workspace and navigate to the material selection settings. 
 
-1. Open Simulation Workspace: Launch the simulator platform and locate the Material Testing Rig panel. 
+2. Check the available material options (Aluminium, Steel, Air Gap, Aerogel) from the drop-down menu and note down their thermal conductivity ($k$) values. 
 
-2. Review Material Properties: Cycle through the barrier options (Aluminium, Steel, Air Gap, Aerogel) in the drop-down menu and inspect their native Thermal Conductivity (k) ratings. 
+3. Click **Run Thermal Test** to observe how heat transfers from the faulty cell (at 120 °C) to the normal cell (at 25 °C). 
 
-3. Execute Thermal Test: Click Run Thermal Test to watch the **Live Test Monitor** animate heat transfer from the 120 °C fault cell to the 25 °C normal cell. 
+4. Compare the performance based on how long it takes to reach the critical temperature (80 °C) and the given verdict. Choose the most effective insulating material, lock it in, and click **Proceed to Milestone 2**. 
 
-4. Lock In Selection: Compare the Time to Critical Temp (80 °C) and the Verdict to find the best insulator. Select it in the final menu and click Proceed to Milestone 2. 
+---
 
 ## **Milestone 2: Multi-Variable Containment Simulation** 
+1. Verify the selected isolation material carried over properly. Use the sliders to set up the following test parameters within their allowable ranges: 
+   * Mass of Cell ($m$): 0.1 kg to 3.0 kg 
+   * Initial Battery Temp: 20 °C to 60 °C 
+   * Cooling Efficiency: 40% to 95% 
+   * Fault Duration: 1 sec to 20 sec 
 
-1. Configure Testing Conditions: Verify your read-only inherited material choices. Use the parameter sliders to dial in your run variables within their allowed limits: 
+2. Set the Emergency Isolation System toggle switch to **ON** if you want automated safety loops, or leave it **OFF** if you want to test manual intervention times. 
 
-   - Mass of Cell (m): 0.1 kg - 3.0 kg 
+3. Click **Trigger Fault** to induce an internal short circuit in Cell 1. 
 
-   - Initial Battery Temp: 20 °C – 60 °C 
+4. Monitor the dashboard data and the changing colors of Cells 1, 2, and 3 to track heat generation calculation ($Q = mc\Delta T$), elapsed time, and total energy released. 
 
-   - Cooling Efficiency: 40% - 95% 
+5. If running in manual mode (System set to **OFF**), wait for the cell temperature to hit the critical threshold (80 °C), then immediately click the **DEPLOY EMERGENCY BARRIER** button to engage the barrier and stop conductive heat transfer. 
 
-   - Fault Duration: 1 sec – 20 sec 
+6. Observe the physical status of the cells; any cell that surpasses 120 °C will turn black, indicating burnout. 
 
-2. Select Control Mode: Set the Emergency Isolation System switch to **ON** for automated protection loops, or leave it **OFF** to test your own manual reflex times. 
+7. Review the final performance data after the simulation finishes, noting down the **Peak Temp**, **Response Time**, and number of **Damaged Cells**. Click **History** to log the overall data fields (Total Damaged Cells, First Breach Timestamp, and Cooling Recovery Duration). 
 
-3. Initiate Short Circuit: Click Trigger Fault to create an internal short circuit in Cell 1- **Fault Source** . 
-
-4. Monitor Real-Time Data: Watch the Live Math Dashboard banner and live colour changes across Cells 1, 2, and 3 to track the calculation of **Live Heat Generation (** 𝑸= 𝒎∙𝒄∙∆𝑻 **)** , **Time Elapsed, and Energy Released.** 
-
-5. Deploy Isolation Barrier: If running in manual mode **- System toggled OFF,** wait for the cell to hit the critical activation line (80 °C), then immediately mash the _**DEPLOY EMERGENCY BARRIER**_ button. Watch the barrier animate into the gap to block the conductive heat highway. 
-
-6. Check Damaged Cells: If mitigation is too slow and a cell cooks past 120 °C, observe it turn flat black indicating carbonized burnout. 
-
-7. Log Final Telemetry: Review final performance metrics - **Peak Temp, Response Time, Damaged Cells.** Click the History button to record your **Total Damaged Cells, First Breach Timestamp, and Cooling Recovery Duration fields.** 
-
-8. Review Event Logs & Reset: Read the Dynamic Event Log box below the fold for a step-by-step thermodynamic explanation of the run. Click **Reset Simulation** to adjust variables and rerun the trial. 
-
+8. Check the event log at the bottom of the page for the thermodynamic breakdown of the test run. Click **Reset Simulation** if you need to modify variables and run another test.
