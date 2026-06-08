@@ -897,13 +897,13 @@ footer {
     letter-spacing: 1px;
   }
 
-  /* Vertical battery layout for mobile portrait */
+  /* Vertical battery layout for mobile portrait - centered container, left-aligned contents */
   .pack-container { 
     flex-direction: column;
     gap: 0;
-    width: 100%;
-    align-items: center;
-    margin: 1rem 0;
+    width: 280px;
+    align-items: flex-start;
+    margin: 1rem auto;
   }
 
   .cell-group {
@@ -944,7 +944,7 @@ footer {
   }
 
   .gap-container {
-    width: 190px;
+    width: 197px;
     height: 35px;
     align-self: flex-start;
     margin-left: 0;
@@ -960,7 +960,7 @@ footer {
   }
 
   .isolation-barrier {
-    width: 190px;
+    width: 197px;
     height: 10px;
     top: 50%;
     left: 50%;
@@ -996,8 +996,12 @@ footer {
     padding: 0.75rem 1rem;
   }
 
+  .pack-container {
+    width: 250px;
+  }
+
   .cell-group {
-    max-width: 270px;
+    max-width: 250px;
     gap: 0.75rem;
   }
   .battery-cell {
@@ -1005,11 +1009,11 @@ footer {
     height: 58px;
   }
   .gap-container {
-    width: 170px;
+    width: 177px;
     height: 30px;
   }
   .isolation-barrier {
-    width: 170px;
+    width: 177px;
   }
 
   .metric-sq-card { 
@@ -1037,6 +1041,10 @@ footer {
    LANDSCAPE: Phones rotated sideways (<=500px height)
    ============================================= */
 @media (orientation: landscape) and (max-height: 500px) {
+  html, body {
+    overflow-x: hidden;
+  }
+
   header h1 { font-size: 1rem; }
   header { padding: 0.6rem 1rem; }
 
@@ -1075,43 +1083,97 @@ footer {
     min-height: auto;
     border-right: 2px solid #ddd;
     border-bottom: none;
-    padding: 1.5rem;
+    padding: 0.75rem;
+    min-width: 0;
   }
   .control-column {
-    flex: 0 0 220px;
+    flex: 0 0 200px;
     border-right: 2px solid #ddd;
     border-bottom: none;
     overflow-y: auto; /* Allow scrolling parameter panel */
     max-height: 400px;
   }
 
+  /* In landscape, place metrics as horizontal row below the cells to save width */
   .sim-body {
-    flex-direction: row;
+    flex-direction: column-reverse;
     align-items: center;
+    gap: 0.75rem;
   }
   .metrics-column {
-    flex-direction: column;
-    flex: 0 0 90px;
-    width: auto;
+    flex-direction: row;
+    width: 100%;
+    justify-content: center;
+    gap: 0.5rem;
+    flex: unset;
   }
   .metric-sq-card {
-    width: 88px;
-    height: 88px;
+    width: 80px;
+    height: 65px;
+    padding: 0.25rem;
   }
   .metric-sq-card.has-history-btn {
     height: auto;
-    min-height: 88px;
+    min-height: 65px;
+    padding-bottom: 2px;
   }
-  .metric-sq-label { font-size: 0.75rem; }
-  .metric-sq-value { font-size: 1.35rem; }
-  .hist-btn { font-size: 0.64rem; }
+  .metric-sq-label { font-size: 0.6rem; }
+  .metric-sq-value { font-size: 0.95rem; }
+  .hist-btn { font-size: 0.55rem; padding: 1px 0; margin-top: 2px; }
 
-  /* Keep battery horizontal in landscape, just scale container scale or fluid size */
+  /* Compact battery cells and gaps in landscape - no scale hacks */
   .pack-container {
-    transform: scale(0.55);
-    transform-origin: center center;
-    margin-bottom: -115px;
+    flex-direction: row;
+    width: 100%;
+    justify-content: center;
+    transform: none;
+    margin: 0.5rem 0;
   }
+  
+  .battery-cell {
+    width: 60px;
+    height: 130px;
+    border: 3px solid #555;
+    border-radius: 6px;
+  }
+  
+  .battery-cell::before {
+    top: -9px;
+    left: calc(50% - 16px);
+    width: 32px;
+    height: 9px;
+    border-radius: 3px 3px 0 0;
+    background-color: #555;
+  }
+
+  .temp-display { font-size: 1.1rem; }
+  .cell-label { font-size: 0.75rem; margin-top: 0.4rem; }
+
+  .gap-container {
+    width: 20px;
+    height: 130px;
+    align-self: center;
+    margin: 0;
+  }
+
+  .isolation-barrier {
+    width: 8px;
+    height: 130px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -150%);
+    border-left: 2px solid #ffc107;
+    border-right: 2px solid #ffc107;
+    border-top: none;
+    border-bottom: none;
+    background-color: #333;
+  }
+
+  .isolation-barrier.dropped {
+    transform: translate(-50%, -50%);
+  }
+
+  .heat-arrow { font-size: 1.1rem; }
 
   .live-math-box { padding: 0.5rem 0.8rem; margin-bottom: 0.6rem; }
   .math-line { font-size: 0.78rem; }
@@ -1130,4 +1192,8 @@ footer {
   button { padding: 0.6rem; font-size: 0.88rem; }
   .deploy-btn-spacing { margin-top: 8px; }
   .reset-btn-spacing { margin-top: 10px; }
+
+  .below-fold {
+    padding: 0.5rem 0.75rem;
+  }
 }
