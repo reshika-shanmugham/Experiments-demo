@@ -1,18 +1,7 @@
-// simulation.js — Student Project: Thermal Runaway Propagation
-// Welcome to the code! This file runs the entire battery simulation.
-// We've written this so you can read along and see how the math becomes a visual simulation.
-
-// ==============================================================================
-// IMPORTANT: We wrap EVERYTHING inside DOMContentLoaded.
-// This guarantees the browser has finished building the entire HTML page
-// before our JavaScript tries to find elements. Without this, on mobile phones,
-// the script can run too early and crash because the HTML elements don't exist yet.
-// ==============================================================================
 document.addEventListener('DOMContentLoaded', function() {
 
 // ==============================================================================
 // GLOBAL VARIABLES FROM MILESTONE 1
-// We need to save the student's barrier choice so we can use it in Milestone 2.
 // ==============================================================================
 let chosenBarrierConductivity = 0.015;     // Thermal conductivity (k). Default is Aerogel.
 let chosenBarrierName         = 'Aerogel'; // The name of the material.
@@ -21,7 +10,6 @@ let chosenBarrierSpecificHeat = 700;       // Specific heat capacity (c). Defaul
 /* 
  * ==============================================================================
  * MILESTONE NAVIGATION
- * This section handles switching between Milestone 1 and Milestone 2.
  * ==============================================================================
  */
 function switchMilestone(milestoneNumber) {
