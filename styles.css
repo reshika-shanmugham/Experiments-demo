@@ -659,6 +659,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
 .temp-display { font-size: 1.8rem; font-weight: bold; color: white; text-shadow: 1px 1px 2px black; z-index: 2; text-align: center; }
+.damaged-cell-text { font-size: 1.4rem; color: #ff4444; line-height: 1.2; }
 .cell-label { margin-top: 0.8rem; font-weight: bold; text-align: center; font-size: 0.95rem; }
 .label-subtext { color: #2f5d50; font-size: 0.85rem; }
 .label-subtext-mid { color: #555; font-size: 0.85rem; }
@@ -961,6 +962,9 @@ footer {
   .temp-display {
     font-size: 1.35rem;
   }
+  .damaged-cell-text {
+    font-size: 1.15rem;
+  }
 
   .cell-label {
     margin-top: 0;
@@ -1051,6 +1055,7 @@ footer {
   .metric-sq-label { font-size: 0.65rem; }
   .metric-sq-value { font-size: 0.95rem; }
   .hist-btn { font-size: 0.55rem; }
+  .damaged-cell-text { font-size: 1rem; }
 
   .math-line { font-size: 0.72rem; }
   .ms1-result-panel { flex-direction: column; }
@@ -1172,6 +1177,7 @@ footer {
   }
 
   .temp-display { font-size: 1.1rem; }
+  .damaged-cell-text { font-size: 0.8rem; line-height: 1.1; }
   .cell-label { font-size: 0.75rem; margin-top: 0.4rem; }
 
   .gap-container {
