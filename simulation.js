@@ -275,6 +275,7 @@ var completelyBurntOutCells = new Set(); // Cells that hit 120 degrees and died
 var currentlyDeployedGapIndex = 0; // Where did the barrier fall? 0 = gap 1, 1 = gap 2.
 var didBarrierButtonAppear    = false;
 var totalHeatEnergyGenerated  = 0; // Keeping track of Joules
+var didShowConductorWarning = false; // Flag to prevent toast reopening on every tick
 
 // --- 4. Listen for User Input on the Sliders ---
 
@@ -395,6 +396,17 @@ if (buttonHistoryModal) {
   
   buttonCloseHistory.addEventListener('click', function() { 
     historyModalBox.style.display = 'none'; 
+  });
+}
+
+// Toast close button listener
+var closeWarningToast = document.getElementById('close-warning-toast');
+if (closeWarningToast) {
+  closeWarningToast.addEventListener('click', function() {
+    var warningToast = document.getElementById('barrier-warning-toast');
+    if (warningToast) {
+      warningToast.style.display = 'none';
+    }
   });
 }
 
@@ -632,21 +644,39 @@ function runPhysicsTick() {
   // If the barrier is made of Aluminum (high k), it actually helps suck heat away faster!
   var finalCoolingSpeed = baselineCoolingSpeed * (1 + chosenBarrierConductivity * 0.05);
   
-  if (hasBarrierDropped) {
+  var isGoodConductor = (chosenBarrierName === 'Aluminum' || chosenBarrierName === 'Steel');
+  var isCoolingActive = (hasBarrierDropped && !isGoodConductor) || 
+                        (activeFaultTimer > currentFaultDuration && Math.max(tempCell1, tempCell2, tempCell3) < CRITICAL_TEMPERATURE);
+  
+  if (isCoolingActive) {
+    var coolingRateToUse = hasBarrierDropped ? finalCoolingSpeed : baselineCoolingSpeed;
     // Cool down Cell 1
     if (tempCell1 > currentInitialTemp) {
-      tempCell1 -= (tempCell1 - currentInitialTemp) * finalCoolingSpeed * TIME_STEP;
+      tempCell1 -= (tempCell1 - currentInitialTemp) * coolingRateToUse * TIME_STEP;
       if (tempCell1 <= currentInitialTemp + 0.5) tempCell1 = currentInitialTemp;
     }
     // Cool down Cell 2
     if (tempCell2 > currentInitialTemp) {
-      tempCell2 -= (tempCell2 - currentInitialTemp) * finalCoolingSpeed * TIME_STEP;
+      tempCell2 -= (tempCell2 - currentInitialTemp) * coolingRateToUse * TIME_STEP;
       if (tempCell2 <= currentInitialTemp + 0.5) tempCell2 = currentInitialTemp;
     }
     // Cool down Cell 3
     if (tempCell3 > currentInitialTemp) {
-      tempCell3 -= (tempCell3 - currentInitialTemp) * finalCoolingSpeed * TIME_STEP;
+      tempCell3 -= (tempCell3 - currentInitialTemp) * coolingRateToUse * TIME_STEP;
       if (tempCell3 <= currentInitialTemp + 0.5) tempCell3 = currentInitialTemp;
+    }
+  }
+
+  // Update the barrier conductivity warning popup toast at the top
+  if (hasBarrierDropped && isGoodConductor) {
+    if (!didShowConductorWarning) {
+      didShowConductorWarning = true;
+      var warningToast = document.getElementById('barrier-warning-toast');
+      var warnBarrierName = document.getElementById('warn-barrier-name');
+      if (warningToast && warnBarrierName) {
+        warnBarrierName.innerText = chosenBarrierName;
+        warningToast.style.display = 'block';
+      }
     }
   }
 
@@ -656,7 +686,11 @@ function runPhysicsTick() {
     if (completelyBurntOutCells.size > 0) {
       eventLogText.innerText = '[ALERT] Unmitigated runaway has compromised cell structural integrity. Carbonization state triggered...';
     } else if (hasBarrierDropped) {
-      eventLogText.innerText = '[CONTAINMENT DETECTED] Isolation barrier inserted at gap ' + (currentlyDeployedGapIndex + 1) + '. Conduction pathway severed. Cooling circulation engaged...';
+      if (isGoodConductor) {
+        eventLogText.innerText = '[WARNING] Conductive barrier (' + chosenBarrierName + ') inserted at gap ' + (currentlyDeployedGapIndex + 1) + '. Heat bridge created! Runaway propagation continuing...';
+      } else {
+        eventLogText.innerText = '[CONTAINMENT DETECTED] Isolation barrier inserted at gap ' + (currentlyDeployedGapIndex + 1) + '. Conduction pathway severed. Cooling circulation engaged...';
+      }
     } else if (tempCell1 >= CRITICAL_TEMPERATURE) {
       eventLogText.innerText = '[CRITICAL ALERT] Cell 1 temperature has exceeded safety bounds. Containment systems primed...';
     } else if (activeFaultTimer <= currentFaultDuration && tempCell1 > currentInitialTemp) {
@@ -684,12 +718,11 @@ function runPhysicsTick() {
     }
   }
 
-  // Check if the fault ran its course without causing a fire, and the system is stable
-  var endCheckHottestTemp = Math.max(tempCell1, tempCell2, tempCell3);
-  var isFaultOverAndSafe = (activeFaultTimer > currentFaultDuration) && (endCheckHottestTemp < CRITICAL_TEMPERATURE);
+  // Check if the fault has run its course and the surviving cells have cooled back down near initial temp
+  var isFaultOverAndSafe = (activeFaultTimer > currentFaultDuration) && areAllSurvivingCellsCooled;
 
-  // If everything is completely dead, or everything is safe and cool, or the fault ended safely, end the simulation
-  if (areAllCellsDestroyed || (hasBarrierDropped && areAllSurvivingCellsCooled) || isFaultOverAndSafe) {
+  // If everything is completely dead, or everything is safe and cool, end the simulation
+  if (areAllCellsDestroyed || isFaultOverAndSafe) {
     clearInterval(mainSimInterval);
     isMainSimActive      = false;
     didBarrierButtonAppear = false;
@@ -751,6 +784,12 @@ function recalculateStartingMath() {
   
   outputLiveDamagedWarning.innerText = '';
   outputLiveDamagedWarning.style.display = 'none';
+  
+  didShowConductorWarning = false;
+  var warningToast = document.getElementById('barrier-warning-toast');
+  if (warningToast) {
+    warningToast.style.display = 'none';
+  }
   
   var eventLogText = document.getElementById('event-log-text');
   if (eventLogText) {
