@@ -876,14 +876,13 @@ footer {
   .metric-sq-card { 
     flex: 1;
     max-width: 100px;
-    height: 85px; 
+    height: auto; 
+    min-height: 85px;
     padding: 0.4rem 0.25rem;
   }
 
   /* The history card must grow tall enough to hold its button */
   .metric-sq-card.has-history-btn {
-    height: auto;
-    min-height: 85px;
     padding: 0.4rem 0.25rem;
   }
 
@@ -1138,13 +1137,12 @@ footer {
     flex: unset;
   }
   .metric-sq-card {
-    width: 80px;
-    height: 65px;
+    width: 85px;
+    height: auto;
+    min-height: 75px;
     padding: 0.25rem;
   }
   .metric-sq-card.has-history-btn {
-    height: auto;
-    min-height: 65px;
     padding-bottom: 2px;
   }
   .metric-sq-label { font-size: 0.6rem; }
@@ -1197,8 +1195,9 @@ footer {
 
   .isolation-barrier {
     width: 8px;
-    height: 130px;
-    top: 50%;
+    height: 139px;
+    top: auto;
+    bottom: 0;
     left: 50%;
     transform: translate(-50%, -150%);
     border-left: 2px solid #ffc107;
@@ -1209,7 +1208,7 @@ footer {
   }
 
   .isolation-barrier.dropped {
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, 0);
   }
 
   .heat-arrow { 
