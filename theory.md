@@ -67,13 +67,13 @@ Joule heating.
 
 We calculate that heat using:
 
-**Q = I^2^Rt**
+**Q = I<sup>2</sup>Rt**
 
 ---
 
-Q : Heat generated (J)
-I : Current flow (A)
-R : Internal resistance (Ω)
+Q : Heat generated (J)<br>
+I : Current flow (A)<br>
+R : Internal resistance (Ω)<br>
 t : Time duration (s)
 
 ---
@@ -90,10 +90,10 @@ jump is tracked with the standard sensible heat formula:
 
 ---
 
-Q : Stored heat energy (J)
-m : Mass of the individual cell (g)
-c : Specific heat capacity (J/kg · K)
-ΔT : Temperature change (°C or K)
+Q : Stored heat energy (J)<br>
+m : Mass of the individual cell (g)<br>
+c : Specific heat capacity (J/kg · K)<br>
+ΔT : Temperature change (°C or K)<br>
 
 ---
 
@@ -108,11 +108,18 @@ The actual rate of this energy leak is governed by Fourier\'s Law:
 
 ---
 
-Q : Heat transfer rate (W)
-k : Thermal conductivity of the material (W/m · K)
-A : Available surface contact area (m<sup>2</sup>)
-dT/dx : Spatial temperature gradient across the barrier
+Q : Heat transfer rate (W)<br>
+k : Thermal conductivity of the material (W/m · K)<br>
+A : Available surface contact area (m<sup>2</sup>)<br>
+dT/dx : Spatial temperature gradient across the barrier<br>
 
----
+<img src="propagation.drawio.png">
+
+
+### WORKFLOW
+
+<img src="Milestone 1.png">
+
+<img src="Milestione 2.png">
 
 :::
