@@ -14,6 +14,13 @@
   <h1>Thermal Runaway Propagation &amp; Emergency Battery Isolation System</h1>
 </header>
 
+<div id="barrier-warning-toast" class="warning-toast" style="display: none;">
+  <span class="warning-toast-close" id="close-warning-toast">&times;</span>
+  <div>
+    <strong>[WARNING]</strong> The deployed barrier (<span id="warn-barrier-name"></span>) did not help in cooling down because of its high thermal conductivity (tested in Milestone 1). Heat continues to propagate!
+  </div>
+</div>
+
 <!-- ========================================== -->
 <!-- MILESTONE 1: Material Selection            -->
 <!-- ========================================== -->
@@ -149,10 +156,10 @@
                 <div class="metric-sq-label">Response Time</div>
                 <div class="metric-sq-value" id="out-response">-</div>
               </div>
-              <div class="metric-sq-card position-relative">
-                <button id="btn-history" class="hist-btn">History</button>
+              <div class="metric-sq-card has-history-btn">
                 <div class="metric-sq-label">Damaged<br>Cells</div>
                 <div class="metric-sq-value" id="out-damaged">0</div>
+                <button id="btn-history" class="hist-btn">History</button>
               </div>
             </div>
 
