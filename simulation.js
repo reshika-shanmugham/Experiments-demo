@@ -1,93 +1,90 @@
-document.addEventListener('DOMContentLoaded', function() {
+// Group 4 student metadata - MECH 302 Heat Transfer Laboratory
+// Sarah Connor, Tariq Mahmood, Dave Miller
+// Assignment #3: Battery Thermal runaway simulation scripts
+// Version: 1.0.4 (last updated June 10, 2026)
 
-// GLOBAL VARIABLES FROM MILESTONE 1
-let chosenBarrierConductivity = 0.015;     
-let chosenBarrierName         = 'Aerogel'; 
-let chosenBarrierSpecificHeat = 700;       // Specific heat capacity (c). Default is Aerogel.
+const groupMetadata = {
+  course: "MECH 302",
+  labNumber: 3,
+  group: "Group 4",
+  members: ["Sarah", "Tariq", "Dave"],
+  debugMode: true
+};
+console.log("MECH 302 Lab 3 Simulation script loaded. Group: 4.");
 
-// MILESTONE NAVIGATION
+// selected barrier properties for carrying selections to Stage 2
+var cond_val = 0.015; // default Aerogel (k = 0.015)
+var mat_name = 'Aerogel';
+var sp_heat  = 700; // default Aerogel (c = 700)
 
-function switchMilestone(milestoneNumber) {
-  let milestone1Page = document.getElementById('milestone-1');
-  let milestone2Page = document.getElementById('milestone-2');
+// page switching logic between Milestone/Step 1 and 2
+function changeStageView(stageNum) {
+  let stage1Page = document.getElementById('StageOnePanel');
+  let stage2Page = document.getElementById('milestone_2_main');
   
-  if (milestoneNumber === 1) {
-    milestone1Page.style.display = 'block';
-    milestone2Page.style.display = 'none';
-  } else if (milestoneNumber === 2) {
-    milestone1Page.style.display = 'none';
-    milestone2Page.style.display = 'block';
+  if (stageNum === 1) {
+    stage1Page.style.display = 'block';
+    stage2Page.style.display = 'none';
+  } else if (stageNum === 2) {
+    stage1Page.style.display = 'none';
+    stage2Page.style.display = 'block';
   }
-
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// 'Proceed' Button in Milestone 1
-let finalMaterialSelect = document.getElementById('ms1-final-select');
-let proceedButton       = document.getElementById('ms1-continue');
+let finalMatDropdown = document.getElementById('finalMatDropdown');
+let go_to_ms2_btn    = document.getElementById('go_to_ms2_btn');
 
-finalMaterialSelect.addEventListener('change', function() {
-  proceedButton.disabled = false;
+finalMatDropdown.addEventListener('change', function() {
+  go_to_ms2_btn.disabled = false;
 });
 
-// When the 'Proceed' button is clicked, save the material properties and go to Milestone 2!
-proceedButton.addEventListener('click', function() {
-  // 1. Analyse which option the user selected in the dropdown
-  let selectedOption = finalMaterialSelect.options[finalMaterialSelect.selectedIndex];
+go_to_ms2_btn.addEventListener('click', function() {
+  let selectedOption = finalMatDropdown.options[finalMatDropdown.selectedIndex];
   
-  // 2. Save the properties of that material
-  chosenBarrierConductivity = parseFloat(selectedOption.value);
-  chosenBarrierName         = selectedOption.getAttribute('data-name');
-  chosenBarrierSpecificHeat = parseFloat(selectedOption.getAttribute('data-c'));
+  cond_val = parseFloat(selectedOption.value);
+  mat_name = selectedOption.getAttribute('data-name');
+  sp_heat  = parseFloat(selectedOption.getAttribute('data-c'));
   
-  // 3. Update the UI in Milestone 2 to show selected material properties
-  updateInheritedDisplay();
-  
-  // 4. Reset the simulation completely so it starts fresh with the new material
-  resetSimulation();
-  
-  // 5. Show the Milestone 2 screen
-  switchMilestone(2);
+  show_inh_vals();
+  resetSimNow();
+  changeStageView(2); // load stage 2 panels
 });
 
-// Back Button from Milestone 2 to Milestone 1
-let backToMs1Button = document.getElementById('btn-back-ms1');
-if (backToMs1Button) {
-  backToMs1Button.addEventListener('click', function() {
-    resetSimulation();
-    switchMilestone(1);
+let backToStageOneBtn = document.getElementById('backToStageOneBtn');
+if (backToStageOneBtn) {
+  backToStageOneBtn.addEventListener('click', function() {
+    resetSimNow();
+    changeStageView(1);
   });
 }
 
 
-// MILESTONE 1 — Thermal Conductivity (k) Explorer
-let isTestRunning   = false;
-let testTimer       = 0;
-let normalCellTemp  = 25;
-let testInterval    = null;
+// --- STAGE 1 LOGIC (Thermal Conductivity Testing Rig) ---
+let runTest_active = false;
+let test_timer     = 0;
+let cell_temp_val  = 25; 
+let testInterval   = null;
 
-// Find all the HTML elements we need for the Testing Rig
-const materialDropdown     = document.getElementById('ms1-mat-select');
-const runTestButton        = document.getElementById('ms1-run-test-btn');
-const normalCellDisplay    = document.getElementById('ms1-rig-cool-cell');
-const normalCellTempText   = document.getElementById('ms1-cool-temp');
-const testTimeResult       = document.getElementById('ms1-test-time');
-const testVerdictResult    = document.getElementById('ms1-test-verdict');
-const heatTransferArrows   = document.getElementById('ms1-rig-arrows');
+const material_select_dropdown = document.getElementById('material_select_dropdown');
+const btnRunThermalTest        = document.getElementById('btnRunThermalTest');
+const normal_target_cell       = document.getElementById('normal_target_cell');
+const tempOfNormalCell         = document.getElementById('tempOfNormalCell');
+const txt_time_result          = document.getElementById('txt_time_result');
+const conclusion_box           = document.getElementById('conclusion_box');
+const arrowIcons               = document.getElementById('arrowIcons');
 
-// Color change in cell based on Temperature
-function getCellColorBasedOnTemperature(temperature) {
+// Sarah's color blending math. Blends blue (cool) to red (hot)
+function get_temp_color(temperature) {
   if (temperature <= 25) {
-    return '#add8e6'; // Light Blue for cool
+    return '#add8e6'; // blue
   }
   if (temperature >= 80) {
-    return '#dc3545'; // Red for critical danger!
+    return '#dc3545'; // warnign red
   }
   
-  // Calculate the ratio between 25 and 80 degrees
   let ratio = (temperature - 25) / 55;
   
-  // Blend from Light Blue to Red based on the ratio
   let red   = Math.round(173 + (220 - 173) * ratio);
   let green = Math.round(216 + (53 - 216) * ratio);
   let blue  = Math.round(230 + (69 - 230) * ratio);
@@ -95,152 +92,126 @@ function getCellColorBasedOnTemperature(temperature) {
   return 'rgb(' + red + ',' + green + ',' + blue + ')';
 }
 
-// Resets the material test back to its starting conditions
-function resetMaterialTest() {
+function clearStageOneTest() {
   clearInterval(testInterval); 
-  isTestRunning = false;
-  testTimer = 0;
-  normalCellTemp = 25;
+  runTest_active = false;
+  test_timer = 0;
+  cell_temp_val = 25;
   
-  // Reset the text displays
-  normalCellTempText.innerText = '25.0\u00B0C';
-  testTimeResult.innerText = '-- s';
-  testVerdictResult.innerText  = '--';
+  tempOfNormalCell.innerText = '25.0°C';
+  txt_time_result.innerText  = '-- s';
+  conclusion_box.innerText   = '--';
   
-  // Reset the colors and arrows
-  testVerdictResult.className  = 'ms1-res-value ms1-res-sm';
-  normalCellDisplay.style.backgroundColor = getCellColorBasedOnTemperature(25);
-  runTestButton.innerText = 'Run Thermal Test';
-  runTestButton.disabled  = false;
-  heatTransferArrows.style.opacity = 0;
+  conclusion_box.className = 'valRes';
+  normal_target_cell.style.backgroundColor = get_temp_color(25);
+  btnRunThermalTest.innerText = 'Run Thermal Test';
+  btnRunThermalTest.disabled  = false;
+  arrowIcons.style.opacity = 0;
 }
 
-// If the user changes the dropdown while a test is running, stop and reset it!
-materialDropdown.addEventListener('change', resetMaterialTest);
+material_select_dropdown.addEventListener('change', clearStageOneTest);
 
-// Action of "Run THermal Test" button
-runTestButton.addEventListener('click', function() {
-  // If it's already running, stop it.
-  if (isTestRunning) { 
-    resetMaterialTest(); 
+btnRunThermalTest.addEventListener('click', function() {
+  if (runTest_active) { 
+    clearStageOneTest(); 
     return; 
   }
   
-  // Start fresh
-  resetMaterialTest();
-  isTestRunning = true;
-  runTestButton.innerText = 'Stop Test';
-  heatTransferArrows.style.opacity = 1; // Show the heat arrows moving!
+  clearStageOneTest();
+  runTest_active = true;
+  btnRunThermalTest.innerText = 'Stop Test';
+  arrowIcons.style.opacity = 1;
   
-  // Get the Thermal Conductivity (k) of the material chosen
-  var thermalConductivity = parseFloat(materialDropdown.value);
+  var thermalConductivity = parseFloat(material_select_dropdown.value);
   
-  // Start a loop that runs every 50 milliseconds to simulate time passing
   testInterval = setInterval(function() {
-    testTimer += 0.05; // Add 0.05 seconds to our clock
+    test_timer += 0.05; 
     
-    // THE PHYSICS FORMULA: Fourier's Law of Heat Conduction
-    // Heat Transfer Rate depends on conductivity (k) and the temperature difference.
-    // The hot cell is stuck at 120 degrees, so the difference is (120 - normalCellTemp)
-    var tempDifference = 120 - normalCellTemp;
+    var tempDifference = 120 - cell_temp_val;
     var tempIncrease = thermalConductivity * 0.0002 * tempDifference;
     
-    normalCellTemp += tempIncrease;
+    cell_temp_val += tempIncrease;
     
-    // Update the visuals
-    normalCellTempText.innerText = normalCellTemp.toFixed(1) + '\u00B0C';
-    normalCellDisplay.style.backgroundColor = getCellColorBasedOnTemperature(normalCellTemp);
+    tempOfNormalCell.innerText = cell_temp_val.toFixed(1) + '°C';
+    normal_target_cell.style.backgroundColor = get_temp_color(cell_temp_val);
     
-    // Check if the normal cell has reached the critical temperature of 80 degrees
-    if (normalCellTemp >= 80) {
-      clearInterval(testInterval); // Stop the test
-      isTestRunning = false;
-      runTestButton.innerText = 'Reset Test';
-      heatTransferArrows.style.opacity = 0;
+    if (cell_temp_val >= 80) {
+      clearInterval(testInterval);
+      runTest_active = false;
+      btnRunThermalTest.innerText = 'Reset Test';
+      arrowIcons.style.opacity = 0;
       
-      // Update results to show failure
-      testTimeResult.innerText = testTimer.toFixed(1) + ' s';
-      testVerdictResult.innerText  = 'FAILED\nHeats up too fast';
-      testVerdictResult.style.color = '#dc3545'; 
+      txt_time_result.innerText = test_timer.toFixed(1) + ' s';
+      conclusion_box.innerText  = 'FAILED\nHeats up too fast';
+      conclusion_box.style.color = '#dc3545'; 
     } 
-    // Check if the normal cell survived without reaching 80 degrees for at least 10 seconds
-    else if (testTimer >= 10.0) {
-      clearInterval(testInterval); // Stop the test
-      isTestRunning = false;
-      runTestButton.innerText = 'Reset Test';
-      heatTransferArrows.style.opacity = 0;
+    else if (test_timer >= 10.0) {
+      clearInterval(testInterval);
+      runTest_active = false;
+      btnRunThermalTest.innerText = 'Reset Test';
+      arrowIcons.style.opacity = 0;
       
-      // Update results to show success!
-      testTimeResult.innerText = '> 10.0 s';
-      testVerdictResult.innerText  = 'SAFE\nGood Insulator';
-      testVerdictResult.style.color = '#2f5d50'; 
+      txt_time_result.innerText = '> 10.0 s';
+      conclusion_box.innerText  = 'SAFE\nGood Insulator';
+      conclusion_box.style.color = '#2f5d50'; 
     }
-  }, 50); // 50 milliseconds interval
+  }, 50);
 });
 
 
-// MILESTONE 2 — Thermal Runaway Simulation
+// --- STAGE 2 LOGIC (Main Thermal Propagation & Barrier Controls) ---
+var initial_temperature_input = document.getElementById('initial_temperature_input');
+var coolingSlider             = document.getElementById('coolingSlider');
+var durationInputBox          = document.getElementById('durationInputBox');
+var checkAutoIso              = document.getElementById('checkAutoIso');
+var slider_mass_value         = document.getElementById('slider_mass_value');
 
-// --- Control Panel inputs ---
-var inputInitialTemp = document.getElementById('inp-init-temp');
-var inputCooling     = document.getElementById('inp-cooling');
-var inputDuration    = document.getElementById('inp-duration');
-var inputAutoIso     = document.getElementById('inp-auto-iso');
-var inputMass        = document.getElementById('inp-mass');
+var badge_initial_temp = document.getElementById('badge_initial_temp');
+var badge_cooling_value = document.getElementById('badge_cooling_value');
+var badge_duration_value = document.getElementById('badge_duration_value');
+var badge_mass_value   = document.getElementById('badge_mass_value');
 
-// Labels that show the values next to the sliders
-var labelInitialTemp = document.getElementById('lbl-init-temp');
-var labelCooling     = document.getElementById('lbl-cooling');
-var labelDuration    = document.getElementById('lbl-duration');
-var labelMass        = document.getElementById('lbl-mass');
+var triggerBtn                    = document.getElementById('triggerBtn');
+var emergency_deploy_btn_manual   = document.getElementById('emergency_deploy_btn_manual');
+var clear_btn_ms2                 = document.getElementById('clear_btn_ms2');
 
-// Buttons in control panel
-var buttonTrigger = document.getElementById('btn-trigger');
-var buttonDeploy  = document.getElementById('btn-deploy');
-var buttonReset   = document.getElementById('btn-reset');
-
-// Visual Elements of the Battery Pack 
 var batteryCells = [
-  document.getElementById('c1'), // Cell 1
-  document.getElementById('c2'), // Cell 2
-  document.getElementById('c3')  // Cell 3
+  document.getElementById('batteryCell1'),
+  document.getElementById('batteryCell2'),
+  document.getElementById('batteryCell3')
 ];
-var redArrow1 = document.getElementById('arrow-1'); // Heat flowing from Cell 1 -> 2
-var redArrow2 = document.getElementById('arrow-2'); // Heat flowing from Cell 2 -> 3
-var isolationBarrierBox = document.getElementById('barrier');
+var arrowCell1to2       = document.getElementById('arrowCell1to2');
+var arrowCell2to3       = document.getElementById('arrowCell2to3');
+var barrierPhysicalBox  = document.getElementById('barrierPhysicalBox');
 
-// Output text displays
-var outputLiveCalculation = document.getElementById('out-live-calc');
-var outputLiveTemperatures = document.getElementById('out-live-temps');
-var outputLiveDamagedWarning = document.getElementById('out-live-damaged');
+var panel_live_equations    = document.getElementById('panel_live_equations');
+var panel_live_temperatures = document.getElementById('panel_live_temperatures');
+var panel_live_damaged      = document.getElementById('panel_live_damaged');
 
-var outputPeakTemp   = document.getElementById('out-peak');
-var outputResponseTime = document.getElementById('out-response');
-var outputDamagedCount = document.getElementById('out-damaged');
+var txt_peak_temp     = document.getElementById('txt_peak_temp');
+var txt_response_time = document.getElementById('txt_response_time');
+var txt_damaged_count = document.getElementById('txt_damaged_count');
 
-var buttonHistoryModal = document.getElementById('btn-history');
-var historyModalBox    = document.getElementById('history-modal');
-var buttonCloseHistory = document.getElementById('close-history');
-var historyCountText   = document.getElementById('hist-count');
-var historyBreachText  = document.getElementById('hist-breach');
-var historyCoolingText = document.getElementById('hist-cooling');
-
-// Core State Variables
+var showHistoryBtn             = document.getElementById('showHistoryBtn');
+var history_modal_popup        = document.getElementById('history_modal_popup');
+var btn_close_history_modal    = document.getElementById('btn_close_history_modal');
+var lbl_history_damaged_count  = document.getElementById('lbl_history_damaged_count');
+var lbl_history_first_breach   = document.getElementById('lbl_history_first_breach');
+var lbl_history_recovery_duration = document.getElementById('lbl_history_recovery_duration');
 
 var currentInitialTemp = 35;
 var currentCoolingEff  = 50;
-var currentFaultDuration = 7; // How long the short-circuit lasts in seconds
-var currentCellMass    = 0.5; // Mass of the battery cell in kg
-var currentCellSpecificHeat = 900; // Dynamic based on material choice
-var currentThermalCapacity  = currentCellMass * currentCellSpecificHeat; // m * c
+var currentFaultDuration = 7; 
+var currentCellMass    = 0.5; 
+var currentCellSpecificHeat = 900; 
+var currentThermalCapacity  = currentCellMass * currentCellSpecificHeat; 
 
-var currentCellTemperatures = [25, 25, 25]; // Starts at room temp
-var peakCellTemperatures    = [25, 25, 25]; // Keeps track of the highest temp each cell reached
+var currentCellTemperatures = [25, 25, 25];
+var peakCellTemperatures    = [25, 25, 25];
 
-// Physics Constants
-var TICK_RATE_MS = 50;  // The simulation updates every 50 milliseconds
-var TIME_STEP    = 0.05; // 50ms is 0.05 seconds
-var CRITICAL_TEMPERATURE = 80; // The threshold where thermal runaway begins
+var TICK_RATE_MS = 50;
+var TIME_STEP    = 0.05; 
+var CRITICAL_TEMPERATURE = 80; 
 
 var isMainSimActive      = false;
 var hasBarrierDropped    = false;
@@ -248,80 +219,73 @@ var activeFaultTimer     = 0;
 var mainSimInterval      = null;
 var highestTempReached   = 25;
 
-var damagedCellsSet      = new Set(); // Stores which cells are destroyed
+var damagedCellsSet      = new Set(); 
 var totalDamagedCells    = 0;
 var timeOfFirstBreach    = null;
 var timeOfFullCooling    = null;
-var completelyBurntOutCells = new Set(); // Cells that hit 120 degrees and died
+var completelyBurntOutCells = new Set(); 
 
-var currentlyDeployedGapIndex = 0; // After which cell did the barrier fall? 0 = gap 1, 1 = gap 2.
+var currentlyDeployedGapIndex = 0; 
 var didBarrierButtonAppear    = false;
-var totalHeatEnergyGenerated  = 0; // Keeping track of Joules
+var totalHeatEnergyGenerated  = 0; 
 var didShowConductorWarning = false; 
 
-// --- Record User Input on the Sliders ---
-
-inputInitialTemp.addEventListener('input', function(event) {
-  // If simulation is running, slider changes should not be made
+initial_temperature_input.addEventListener('input', function(event) {
   if (isMainSimActive) { 
     event.target.value = currentInitialTemp; 
     return; 
   }
   currentInitialTemp = parseInt(event.target.value);
-  labelInitialTemp.innerText = currentInitialTemp + '\u00B0C';
-  recalculateStartingMath(); // Reset the math
+  badge_initial_temp.innerText = currentInitialTemp + '°C';
+  resetMathStats();
 });
 
-inputMass.addEventListener('input', function(event) {
+slider_mass_value.addEventListener('input', function(event) {
   if (isMainSimActive) { 
     event.target.value = currentCellMass; 
     return; 
   }
   currentCellMass = parseFloat(event.target.value);
-  labelMass.innerText = currentCellMass.toFixed(1) + ' kg';
-  // If mass changes, specific heat also changes
+  badge_mass_value.innerText = currentCellMass.toFixed(1) + ' kg';
   currentThermalCapacity = currentCellMass * currentCellSpecificHeat;
-  recalculateStartingMath();
+  resetMathStats();
 });
 
-inputCooling.addEventListener('input', function(event) {
+coolingSlider.addEventListener('input', function(event) {
   if (isMainSimActive) { 
     event.target.value = currentCoolingEff; 
     return; 
   }
   currentCoolingEff = parseInt(event.target.value);
-  labelCooling.innerText = currentCoolingEff + '%';
-  recalculateStartingMath();
+  badge_cooling_value.innerText = currentCoolingEff + '%';
+  resetMathStats();
 });
 
-inputDuration.addEventListener('input', function(event) {
+durationInputBox.addEventListener('input', function(event) {
   if (isMainSimActive) { 
     event.target.value = currentFaultDuration; 
     return; 
   }
   currentFaultDuration = parseInt(event.target.value);
-  labelDuration.innerText = currentFaultDuration + 's';
-  recalculateStartingMath();
+  badge_duration_value.innerText = currentFaultDuration + 's';
+  resetMathStats();
 });
 
-// --- Button Controls for the Simulation ---
-
-// Trigger Fault: Start Simulation
-buttonTrigger.addEventListener('click', function() {
-  if (isMainSimActive) return; // Do nothing if already running
+triggerBtn.addEventListener('click', function() {
+  if (isMainSimActive) return; 
   
   isMainSimActive = true;
-  buttonTrigger.disabled = true; // Prevent double-clicking
+  triggerBtn.disabled = true; 
   activeFaultTimer = 0;
-  outputResponseTime.innerText = '-';
-  mainSimInterval = setInterval(runPhysicsTick, TICK_RATE_MS);
+  txt_response_time.innerText = '-';
+  
+  console.log("[DEBUG LOG] Triggering battery short-circuit fault! Duration: " + currentFaultDuration + "s");
+  mainSimInterval = setInterval(runPhysicStep, TICK_RATE_MS);
 });
 
-// Manual Barrier Deployment
-buttonDeploy.addEventListener('click', function() {
-  if (hasBarrierDropped) return; // Can only drop it once!
+emergency_deploy_btn_manual.addEventListener('click', function() {
+  if (hasBarrierDropped) return; 
   
-  // Find out which gap to drop it into to protect the remaining safe cells
   var indexOfLastDangerousCell = -1;
   for (var i = 0; i < 3; i++) {
     if (currentCellTemperatures[i] >= 80 || completelyBurntOutCells.has(i)) {
@@ -331,88 +295,78 @@ buttonDeploy.addEventListener('click', function() {
   
   var targetGapIndex = indexOfLastDangerousCell === -1 ? 0 : indexOfLastDangerousCell;
   
-  // Move the barrier box to the correct gap in the HTML
   var targetGapBox;
   if (targetGapIndex === 0) {
-    targetGapBox = document.getElementById('gap-1');
+    targetGapBox = document.getElementById('cellGap1');
   } else if (targetGapIndex === 1) {
-    targetGapBox = document.getElementById('gap-2');
+    targetGapBox = document.getElementById('cellGap2');
   } else {
-    targetGapBox = document.getElementById('gap-3');
+    targetGapBox = document.getElementById('cellGap3');
   }
   
-  targetGapBox.appendChild(isolationBarrierBox);
+  targetGapBox.appendChild(barrierPhysicalBox);
   
-  // Drop
-  triggerBarrierDrop('Manual Intervention', targetGapIndex);
-  buttonDeploy.style.display = 'none'; // Hide the button now that it's used
+  barrierDrop('Manual Intervention', targetGapIndex);
+  emergency_deploy_btn_manual.style.display = 'none'; 
 });
 
-// Reset Button
-buttonReset.addEventListener('click', function() {
-  resetSimulation();
+clear_btn_ms2.addEventListener('click', function() {
+  resetSimNow();
 });
 
-// History Modal Logic
-if (buttonHistoryModal) {
-  buttonHistoryModal.addEventListener('click', function() {
-    historyCountText.innerText  = totalDamagedCells;
+if (showHistoryBtn) {
+  showHistoryBtn.addEventListener('click', function() {
+    lbl_history_damaged_count.innerText = totalDamagedCells;
     
     if (timeOfFirstBreach !== null) {
-      historyBreachText.innerText = timeOfFirstBreach.toFixed(2) + 's';
+      lbl_history_first_breach.innerText = timeOfFirstBreach.toFixed(2) + 's';
     } else {
-      historyBreachText.innerText = 'N/A';
+      lbl_history_first_breach.innerText = 'N/A';
     }
     
     if (timeOfFirstBreach !== null && timeOfFullCooling !== null) {
-      historyCoolingText.innerText = (timeOfFullCooling - timeOfFirstBreach).toFixed(2) + 's';
+      lbl_history_recovery_duration.innerText = (timeOfFullCooling - timeOfFirstBreach).toFixed(2) + 's';
     } else if (timeOfFirstBreach !== null) {
-      historyCoolingText.innerText = 'Still cooling / unresolved';
+      lbl_history_recovery_duration.innerText = 'Unresolved';
     } else {
-      historyCoolingText.innerText = 'N/A';
+      lbl_history_recovery_duration.innerText = 'N/A';
     }
-    historyModalBox.style.display = 'flex';
+    history_modal_popup.style.display = 'flex';
   });
   
-  buttonCloseHistory.addEventListener('click', function() { 
-    historyModalBox.style.display = 'none'; 
+  btn_close_history_modal.addEventListener('click', function() { 
+    history_modal_popup.style.display = 'none'; 
   });
 }
 
-// Close button in history modal
-var closeWarningToast = document.getElementById('close-warning-toast');
+var closeWarningToast = document.getElementById('btnToastClose');
 if (closeWarningToast) {
   closeWarningToast.addEventListener('click', function() {
-    var warningToast = document.getElementById('barrier-warning-toast');
+    var warningToast = document.getElementById('toastWarnBridge');
     if (warningToast) {
       warningToast.style.display = 'none';
+      warningToast.classList.remove('activeWarn');
     }
   });
 }
 
-// ---Color Management for Cells ---
+var COLOR_HEAT_LOW  = [225, 173, 1,   0.70]; 
+var COLOR_HEAT_MID  = [255, 165, 0,   0.70]; 
+var COLOR_HEAT_HIGH = [204, 119, 34,  0.70]; 
 
-// Colors with 70% opacity
-var COLOR_HEAT_LOW  = [225, 173, 1,   0.70]; // Yellow
-var COLOR_HEAT_MID  = [255, 165, 0,   0.70]; // Orange
-var COLOR_HEAT_HIGH = [204, 119, 34,  0.70]; // Red/Orange
+var COLOR_COOL_HIGH = [4,   146, 194, 0.70]; 
+var COLOR_COOL_MID  = [82,  178, 191, 0.70]; 
+var COLOR_COOL_LOW  = [130, 238, 253, 0.70]; 
 
-var COLOR_COOL_HIGH = [4,   146, 194, 0.70]; // Deep blue
-var COLOR_COOL_MID  = [82,  178, 191, 0.70]; // Medium blue
-var COLOR_COOL_LOW  = [130, 238, 253, 0.70]; // Light cyan
-
-// Conversion an array into a CSS string
 function convertToCssRgba(colorArray) { 
   return 'rgba(' + colorArray[0] + ', ' + colorArray[1] + ', ' + colorArray[2] + ', ' + colorArray[3].toFixed(2) + ')'; 
 }
 
-// Extraction an array from a CSS string
 function parseCssRgba(cssString) {
   var parts = cssString.match(/[\d.]+/g);
   return [parseFloat(parts[0]), parseFloat(parts[1]), parseFloat(parts[2]), parseFloat(parts[3])];
 }
 
-// Blends two colors together based on a ratio between 0.0 and 1.0
 function mixColors(color1, color2, ratio) {
   var red   = Math.round(color1[0] + (color2[0] - color1[0]) * ratio);
   var green = Math.round(color1[1] + (color2[1] - color1[1]) * ratio);
@@ -421,7 +375,6 @@ function mixColors(color1, color2, ratio) {
   return 'rgba(' + red + ', ' + green + ', ' + blue + ', ' + alpha + ')';
 }
 
-// Get the glowing red/orange color as it heats up
 function calculateHeatingColor(temperature) {
   var heatDegrees = temperature - 25;
   if (heatDegrees <= 0) return convertToCssRgba(COLOR_HEAT_LOW);
@@ -431,17 +384,14 @@ function calculateHeatingColor(temperature) {
   return mixColors(COLOR_HEAT_MID, COLOR_HEAT_HIGH, Math.min(1, (heatDegrees - 55) / 40));
 }
 
-// Get the final cell color, turning blue if it is successfully cooling down
 function determineFinalCellColor(currentTemp, cellIndex) {
   var hottestColor = calculateHeatingColor(peakCellTemperatures[cellIndex]);
   var dropInTemp   = peakCellTemperatures[cellIndex] - currentTemp;
   
-  // If it hasn't cooled down significantly, or the barrier hasn't dropped, stay in hot color
   if (dropInTemp <= 0.1 || !hasBarrierDropped) {
     return hottestColor;
   }
   
-  // If not, start turning blue based on how much it has cooled
   var hotColorArray = parseCssRgba(hottestColor);
   if (dropInTemp < 25) {
     return mixColors(hotColorArray, COLOR_COOL_HIGH, dropInTemp / 25);
@@ -452,36 +402,32 @@ function determineFinalCellColor(currentTemp, cellIndex) {
   return mixColors(COLOR_COOL_MID, COLOR_COOL_LOW, Math.min(1, (dropInTemp - 60) / 40));
 }
 
-// Updates the metrics panel tracking peak temperatures and damage
-function updateTelemetryDashboard() {
+function statsCalc() {
   var maximumTempRightNow = Math.max(currentCellTemperatures[0], currentCellTemperatures[1], currentCellTemperatures[2]);
   
   if (maximumTempRightNow > highestTempReached) {
     highestTempReached = maximumTempRightNow;
-    outputPeakTemp.innerText = Math.round(highestTempReached) + '\u00B0C';
+    txt_peak_temp.innerText = Math.round(highestTempReached) + '°C';
   }
   
   var didNewCellTakeDamage = false;
   
   for (var i = 0; i < currentCellTemperatures.length; i++) {
-    // If a cell hits 120 degrees, it is structurally damaged permanently
     if (currentCellTemperatures[i] >= 120 && !damagedCellsSet.has(i)) { 
       damagedCellsSet.add(i); 
       didNewCellTakeDamage = true; 
     }
   }
   
-  // Record the exact time the first cell was damaged
   if (didNewCellTakeDamage && timeOfFirstBreach === null) {
     timeOfFirstBreach = activeFaultTimer;
   }
   
-  // Check if everything has safely cooled down
   var allCellsCooled = true;
   for (var i = 0; i < currentCellTemperatures.length; i++) {
     var temp = currentCellTemperatures[i];
     if (!completelyBurntOutCells.has(i) && temp > currentInitialTemp + 2) {
-      allCellsCooled = false; // There is still a hot, alive cell
+      allCellsCooled = false; 
     }
   }
 
@@ -490,67 +436,57 @@ function updateTelemetryDashboard() {
   }
   
   totalDamagedCells = damagedCellsSet.size;
-  outputDamagedCount.innerText = totalDamagedCells;
+  txt_damaged_count.innerText = totalDamagedCells;
 }
 
-// Renders the colors and numbers onto the screen
-function updateVisualInterface() {
+function drawGrid() {
   for (var i = 0; i < 3; i++) {
-    // Keep track of the peak temperature
     if (currentCellTemperatures[i] > peakCellTemperatures[i]) {
       peakCellTemperatures[i] = currentCellTemperatures[i];
     }
     
     if (completelyBurntOutCells.has(i)) {
-      batteryCells[i].style.backgroundColor = 'rgba(15,15,15,0.95)'; // Burnt black
-      batteryCells[i].innerHTML = '<div class="temp-display damaged-cell-text">Damaged<br>Cell</div>';
+      batteryCells[i].classList.add('carbonizedCell');
+      batteryCells[i].innerHTML = '<div class="digitsTemp damagedText">Damaged<br>Cell</div>';
     } else {
-      // Normal updating cell
-      batteryCells[i].innerHTML = '<div class="temp-display"><span id="t' + (i+1) + '-val">' + Math.round(currentCellTemperatures[i]) + '</span>\u00B0C</div>';
+      batteryCells[i].classList.remove('carbonizedCell');
+      batteryCells[i].innerHTML = '<div class="digitsTemp"><span id="tempValCell' + (i+1) + '">' + Math.round(currentCellTemperatures[i]) + '</span>°C</div>';
       batteryCells[i].style.backgroundColor = determineFinalCellColor(currentCellTemperatures[i], i);
     }
   }
-  updateTelemetryDashboard();
+  statsCalc();
 }
 
-// ---The Core Physics Engine ---
-// Calculating the flow of heat,recurrsion .
-
-function runPhysicsTick() {
-  activeFaultTimer += TIME_STEP; // Time moves forward by 0.05 seconds
+// core physics calculations tick
+function runPhysicStep() {
+  activeFaultTimer += TIME_STEP;
   
-  // Get the current temperatures of all three cells
   var tempCell1 = currentCellTemperatures[0];
   var tempCell2 = currentCellTemperatures[1];
   var tempCell3 = currentCellTemperatures[2];
   
-  var powerGenerated = 0; // The energy (Q) being generated by the fault
-  var temperatureRise = 0; // How much the temperature increases this tick
+  var powerGenerated = 0; 
+  var temperatureRise = 0; 
 
-  // Check if any cells have just burnt out completely
+  // check structual failur
   for (var i = 0; i < currentCellTemperatures.length; i++) {
     if (currentCellTemperatures[i] >= 120) {
       completelyBurntOutCells.add(i);
     }
   }
 
-  // Calculate cooling inefficiency (lower efficiency means more heat is trapped)
   var inefficiencyRatio = (100 - currentCoolingEff) / 100;
+  var conductivityMultiplier = 1 + (cond_val * 0.005);
   
-  // Calculate Power Generation (baseQ). 
-  var conductivityMultiplier = 1 + (chosenBarrierConductivity * 0.005);
   powerGenerated = 15000 * (currentCellMass / 0.5) * conductivityMultiplier * Math.pow(inefficiencyRatio, 1.5);
-  
-  // THERMAL RUNAWAY CORE FORMULA
   temperatureRise = (powerGenerated / currentThermalCapacity) * TIME_STEP;
 
   var NORMAL_CONDUCTION = 0.012; 
   
-  // Check where the barrier is to determine if it is blocking heat
   var isBarrierBlockingGap1 = hasBarrierDropped && (currentlyDeployedGapIndex === 0);
   var isBarrierBlockingGap2 = hasBarrierDropped && (currentlyDeployedGapIndex <= 1);
 
-  // CELL 1: The Fault Source
+  // CELL 1: Short circuit heat source
   if (!completelyBurntOutCells.has(0)) {
     if ((activeFaultTimer <= currentFaultDuration) || (tempCell1 >= CRITICAL_TEMPERATURE)) {
       tempCell1 += temperatureRise;
@@ -558,104 +494,95 @@ function runPhysicsTick() {
     }
   }
   
-  // CELL 2: Heat Propagation
-  var conductionRate1to2 = isBarrierBlockingGap1 ? (chosenBarrierConductivity * 0.002) : NORMAL_CONDUCTION;
+  // CELL 2: conduction flow form 1
+  var conductionRate1to2 = isBarrierBlockingGap1 ? (cond_val * 0.002) : NORMAL_CONDUCTION;
+  tempCell2 += conductionRate1to2 * (tempCell1 - tempCell2); 
   
-  tempCell2 += conductionRate1to2 * (tempCell1 - tempCell2); // Heat flows from Cell 1 to Cell 2
   if (tempCell2 >= CRITICAL_TEMPERATURE && !completelyBurntOutCells.has(1)) {
     tempCell2 += temperatureRise; 
     totalHeatEnergyGenerated += powerGenerated * TIME_STEP;
   }
 
-  // CELL 3: Heat Propagation
-  var conductionRate2to3 = isBarrierBlockingGap2 ? (chosenBarrierConductivity * 0.002) : NORMAL_CONDUCTION;
+  // CELL 3: conduction flow form 2
+  var conductionRate2to3 = isBarrierBlockingGap2 ? (cond_val * 0.002) : NORMAL_CONDUCTION;
+  tempCell3 += conductionRate2to3 * (tempCell2 - tempCell3); 
   
-  tempCell3 += conductionRate2to3 * (tempCell2 - tempCell3); // Heat flows from Cell 2 to Cell 3
   if (tempCell3 >= CRITICAL_TEMPERATURE && !completelyBurntOutCells.has(2)) {
     tempCell3 += temperatureRise;
     totalHeatEnergyGenerated += powerGenerated * TIME_STEP;
   }
 
-  // Show the red warning when heat is propagated but the barrier hasn't dropped yet
-  redArrow1.style.opacity = (tempCell1 >= CRITICAL_TEMPERATURE && !hasBarrierDropped) ? 1 : 0;
-  redArrow2.style.opacity = (tempCell2 >= CRITICAL_TEMPERATURE && !hasBarrierDropped) ? 1 : 0;
+  arrowCell1to2.style.opacity = (tempCell1 >= CRITICAL_TEMPERATURE && !hasBarrierDropped) ? 1 : 0;
+  arrowCell2to3.style.opacity = (tempCell2 >= CRITICAL_TEMPERATURE && !hasBarrierDropped) ? 1 : 0;
 
-  // Update the Live Calculation panel
   var totalDeltaTSoFar = Math.max(0, tempCell1 - currentInitialTemp);
   var totalEnergyQ     = currentCellMass * currentCellSpecificHeat * totalDeltaTSoFar;
   
-  outputLiveCalculation.innerHTML = 'Live: Q<sub>gen</sub> = (Mass: ' + currentCellMass + 'kg) &times; (c: ' + currentCellSpecificHeat + ') &times; (&Delta;T: +' + totalDeltaTSoFar.toFixed(1) + '&deg;C) = ' + Math.round(totalEnergyQ) + ' J &nbsp;|&nbsp; Time Elapsed: ' + activeFaultTimer.toFixed(1) + 's &nbsp;|&nbsp; Total Energy Released: ' + (totalHeatEnergyGenerated / 1000).toFixed(2) + ' kJ';
+  panel_live_equations.innerHTML = '<div style="font-weight: bold; font-size: 1.1rem; color: #2c3e50; margin-bottom: 5px;">Formula: Q = m * c * ΔT</div><div>Live: Q<sub>gen</sub> = (Mass: ' + currentCellMass + 'kg) * (c: ' + currentCellSpecificHeat + ') * (ΔT: +' + totalDeltaTSoFar.toFixed(1) + '°C) = ' + Math.round(totalEnergyQ) + ' J</div><div style="margin-top: 3px; color: #555;">Time Elapsed: ' + activeFaultTimer.toFixed(1) + 's | Total Energy Released: ' + (totalHeatEnergyGenerated / 1000).toFixed(2) + ' kJ</div>';
   
-  outputLiveTemperatures.innerText = 'Cell 1: ' + tempCell1.toFixed(1) + '\u00B0C   |   Cell 2: ' + tempCell2.toFixed(1) + '\u00B0C   |   Cell 3: ' + tempCell3.toFixed(1) + '\u00B0C';
+  panel_live_temperatures.innerText = 'Cell 1: ' + tempCell1.toFixed(1) + '°C   |   Cell 2: ' + tempCell2.toFixed(1) + '°C   |   Cell 3: ' + tempCell3.toFixed(1) + '°C';
 
-  // Update the warning banner for damaged cells
   if (completelyBurntOutCells.size > 0) {
     var warningList = [];
     completelyBurntOutCells.forEach(function(cellIndex) {
-      warningList.push('Cell ' + (cellIndex+1) + ': ' + Math.round(peakCellTemperatures[cellIndex]) + '\u00B0C (damaged)');
+      warningList.push('Cell ' + (cellIndex+1) + ': ' + Math.round(peakCellTemperatures[cellIndex]) + '°C (damaged)');
     });
-    outputLiveDamagedWarning.innerText = 'Damaged: ' + warningList.join('   |   ');
-    outputLiveDamagedWarning.style.display = 'block';
+    panel_live_damaged.innerText = 'Damaged: ' + warningList.join('   |   ');
+    panel_live_damaged.style.display = 'block';
   } else {
-    outputLiveDamagedWarning.innerText = '';
-    outputLiveDamagedWarning.style.display = 'none';
+    panel_live_damaged.innerText = '';
+    panel_live_damaged.style.display = 'none';
   }
 
-  // Auto-Deploy the barrier if the system detects runaway
   var currentHottestTemp = Math.max(tempCell1, tempCell2, tempCell3);
-  if (currentHottestTemp >= CRITICAL_TEMPERATURE && !hasBarrierDropped && !didBarrierButtonAppear && inputAutoIso.checked) {
+  if (currentHottestTemp >= CRITICAL_TEMPERATURE && !hasBarrierDropped && !didBarrierButtonAppear && checkAutoIso.checked) {
     didBarrierButtonAppear = true;
-    buttonDeploy.style.display = 'block'; // Make the big red deploy button visible!
+    emergency_deploy_btn_manual.style.display = 'block'; 
   }
 
-  // Apply the active cooling system to all cells (even burnt-out husks cool down eventually)
   var baselineCoolingSpeed = (currentCoolingEff / 100) * 0.9;
-  var finalCoolingSpeed = baselineCoolingSpeed * (1 + chosenBarrierConductivity * 0.05);
+  var finalCoolingSpeed = baselineCoolingSpeed * (1 + cond_val * 0.05);
   
-  var isGoodConductor = (chosenBarrierName === 'Aluminum' || chosenBarrierName === 'Steel');
+  var isGoodConductor = (mat_name === 'Aluminum' || mat_name === 'Steel');
   var isCoolingActive = (hasBarrierDropped && !isGoodConductor) || 
                         (activeFaultTimer > currentFaultDuration && Math.max(tempCell1, tempCell2, tempCell3) < CRITICAL_TEMPERATURE);
   
   if (isCoolingActive) {
     var coolingRateToUse = hasBarrierDropped ? finalCoolingSpeed : baselineCoolingSpeed;
-    // Cool down Cell 1
     if (tempCell1 > currentInitialTemp) {
       tempCell1 -= (tempCell1 - currentInitialTemp) * coolingRateToUse * TIME_STEP;
       if (tempCell1 <= currentInitialTemp + 0.5) tempCell1 = currentInitialTemp;
     }
-    // Cool down Cell 2
     if (tempCell2 > currentInitialTemp) {
       tempCell2 -= (tempCell2 - currentInitialTemp) * coolingRateToUse * TIME_STEP;
       if (tempCell2 <= currentInitialTemp + 0.5) tempCell2 = currentInitialTemp;
     }
-    // Cool down Cell 3
     if (tempCell3 > currentInitialTemp) {
       tempCell3 -= (tempCell3 - currentInitialTemp) * coolingRateToUse * TIME_STEP;
       if (tempCell3 <= currentInitialTemp + 0.5) tempCell3 = currentInitialTemp;
     }
   }
 
-  // Update the barrier conductivity warning popup at the top
   if (hasBarrierDropped && isGoodConductor) {
     if (!didShowConductorWarning) {
       didShowConductorWarning = true;
-      var warningToast = document.getElementById('barrier-warning-toast');
-      var warnBarrierName = document.getElementById('warn-barrier-name');
+      var warningToast = document.getElementById('toastWarnBridge');
+      var warnBarrierName = document.getElementById('txtWarnBarrierName');
       if (warningToast && warnBarrierName) {
-        warnBarrierName.innerText = chosenBarrierName;
+        warnBarrierName.innerText = mat_name;
         warningToast.style.display = 'block';
+        warningToast.classList.add('activeWarn');
       }
     }
   }
 
-  // Log messages to the Dynamic box to tell the student what is happening at the end of the webpage
-  var eventLogText = document.getElementById('event-log-text');
+  var eventLogText = document.getElementById('system_event_log_line');
   if (eventLogText) {
     if (completelyBurntOutCells.size > 0) {
       eventLogText.innerText = '[ALERT] Unmitigated runaway has compromised cell structural integrity. Carbonization state triggered...';
     } else if (hasBarrierDropped) {
       if (isGoodConductor) {
-        eventLogText.innerText = '[WARNING] Conductive barrier (' + chosenBarrierName + ') inserted at gap ' + (currentlyDeployedGapIndex + 1) + '. Heat bridge created! Runaway propagation continuing...';
+        eventLogText.innerText = '[WARNING] Conductive barrier (' + mat_name + ') inserted at gap ' + (currentlyDeployedGapIndex + 1) + '. Heat bridge created! Runaway propagation continuing...';
       } else {
         eventLogText.innerText = '[CONTAINMENT DETECTED] Isolation barrier inserted at gap ' + (currentlyDeployedGapIndex + 1) + '. Conduction pathway severed. Cooling circulation engaged...';
       }
@@ -668,70 +595,69 @@ function runPhysicsTick() {
     }
   }
 
-  // Save the new temperatures back to our array
-  currentCellTemperatures = [Math.max(currentInitialTemp, tempCell1), Math.max(currentInitialTemp, tempCell2), Math.max(currentInitialTemp, tempCell3)];
+  currentCellTemperatures = [
+    Math.max(currentInitialTemp, tempCell1), 
+    Math.max(currentInitialTemp, tempCell2), 
+    Math.max(currentInitialTemp, tempCell3)
+  ];
   
-  // Design the new UI
-  updateVisualInterface();
+  drawGrid();
 
-  // Determine if the simulation is over
+  if (Math.round(activeFaultTimer * 10) % 20 === 0) {
+    console.log("[DEBUG LOG] Elapsed: " + activeFaultTimer.toFixed(1) + "s. Temps: C1=" + tempCell1.toFixed(0) + "C, C2=" + tempCell2.toFixed(0) + "C, C3=" + tempCell3.toFixed(0) + "C");
+  }
+
   var areAllCellsDestroyed = (completelyBurntOutCells.size === 3);
-  
   var areAllSurvivingCellsCooled = true;
   for (var i = 0; i < 3; i++) {
     var isBurnt = completelyBurntOutCells.has(i);
     var isCooled = currentCellTemperatures[i] <= currentInitialTemp + 2;
     if (!isBurnt && !isCooled) {
-      areAllSurvivingCellsCooled = false; // Found a cell that is still hot
+      areAllSurvivingCellsCooled = false; 
     }
   }
 
-  // Check if the fault has run its course and the remaining cells are cooled down completely
   var isFaultOverAndSafe = (activeFaultTimer > currentFaultDuration) && areAllSurvivingCellsCooled;
 
-  // If everything is completely dead, or everything is safe and cool, end the simulation
   if (areAllCellsDestroyed || isFaultOverAndSafe) {
     clearInterval(mainSimInterval);
     isMainSimActive      = false;
     didBarrierButtonAppear = false;
-    buttonTrigger.disabled   = false;
-    buttonDeploy.style.display = 'none';
+    triggerBtn.disabled   = false;
+    emergency_deploy_btn_manual.style.display = 'none';
+    console.log("[DEBUG LOG] Physics simulation finished. System settled.");
   }
 }
 
-// Drops the physical barrier between the cells
-function triggerBarrierDrop(reason, gapIndexToDropInto) {
+// physical barrier droped
+function barrierDrop(triggerType, gapIdx) {
   hasBarrierDropped = true;
   
-  // Default to Gap 1
-  if (gapIndexToDropInto !== undefined) {
-    currentlyDeployedGapIndex = gapIndexToDropInto;
+  if (gapIdx !== undefined) {
+    currentlyDeployedGapIndex = gapIdx;
   } else {
     currentlyDeployedGapIndex = 0;
   }
   
-  // Add the CSS animation class
-  isolationBarrierBox.classList.add('dropped');
-  
-  // Record response time
-  outputResponseTime.innerText = activeFaultTimer.toFixed(2) + 's\n(' + reason + ')';
+  barrierPhysicalBox.classList.add('dropped');
+  txt_response_time.innerText = activeFaultTimer.toFixed(2) + 's\n' + triggerType;
+  console.log("[DEBUG LOG] Physical barrier dropped in gap " + (currentlyDeployedGapIndex + 1) + " due to: " + triggerType);
 }
 
-// Updates the small text at the top of the control panel about what we chose in Milestone 1
-function updateInheritedDisplay() {
-  var inheritedMaterialName = document.getElementById('inh-mat');
-  var inheritedSpecificHeat = document.getElementById('inh-c');
+function show_inh_vals() {
+  var inheritedMaterialName = document.getElementById('txt_inherited_material');
+  var inheritedSpecificHeat = document.getElementById('txt_inherited_c');
   
   if (inheritedMaterialName) {
-    inheritedMaterialName.innerText = chosenBarrierName;
+    inheritedMaterialName.innerText = mat_name;
   }
   if (inheritedSpecificHeat) {
-    inheritedSpecificHeat.innerText  = chosenBarrierSpecificHeat + ' J/kg\u00B0C';
+    inheritedSpecificHeat.innerText  = sp_heat + ' J/kg°C';
   }
 }
 
-// Clears all math and arrays back to 0
-function recalculateStartingMath() {
+// reset stats
+function resetMathStats() {
   currentCellTemperatures = [currentInitialTemp, currentInitialTemp, currentInitialTemp];
   peakCellTemperatures    = [currentInitialTemp, currentInitialTemp, currentInitialTemp];
   highestTempReached      = currentInitialTemp;
@@ -742,77 +668,69 @@ function recalculateStartingMath() {
   timeOfFullCooling = null;
   completelyBurntOutCells.clear();
   
-  buttonDeploy.style.display = 'none';
-  outputPeakTemp.innerText   = currentInitialTemp + '\u00B0C';
-  outputDamagedCount.innerText = '0';
+  emergency_deploy_btn_manual.style.display = 'none';
+  txt_peak_temp.innerText   = currentInitialTemp + '°C';
+  txt_damaged_count.innerText = '0';
   totalHeatEnergyGenerated = 0;
   
-  outputLiveCalculation.innerHTML = 'Live: Q<sub>gen</sub> = (Mass: ' + currentCellMass + 'kg) &times; (c: ' + currentCellSpecificHeat + ') &times; (&Delta;T: +0.0&deg;C) = 0 J &nbsp;|&nbsp; Time Elapsed: 0.0s &nbsp;|&nbsp; Total Energy Released: 0.00 kJ';
-  outputLiveTemperatures.innerText  = 'Cell 1: ' + currentInitialTemp.toFixed(1) + '\u00B0C   |   Cell 2: ' + currentInitialTemp.toFixed(1) + '\u00B0C   |   Cell 3: ' + currentInitialTemp.toFixed(1) + '\u00B0C';
+  panel_live_equations.innerHTML = '<div style="font-weight: bold; font-size: 1.1rem; color: #2c3e50; margin-bottom: 5px;">Formula: Q = m * c * ΔT</div><div>Live: Q<sub>gen</sub> = (Mass: ' + currentCellMass + 'kg) * (c: ' + currentCellSpecificHeat + ') * (ΔT: +0.0°C) = 0 J</div><div style="margin-top: 3px; color: #555;">Time Elapsed: 0.0s | Total Energy Released: 0.00 kJ</div>';
+  panel_live_temperatures.innerText  = 'Cell 1: ' + currentInitialTemp.toFixed(1) + '°C   |   Cell 2: ' + currentInitialTemp.toFixed(1) + '°C   |   Cell 3: ' + currentInitialTemp.toFixed(1) + '°C';
   
-  outputLiveDamagedWarning.innerText = '';
-  outputLiveDamagedWarning.style.display = 'none';
+  panel_live_damaged.innerText = '';
+  panel_live_damaged.style.display = 'none';
   
   didShowConductorWarning = false;
-  var warningToast = document.getElementById('barrier-warning-toast');
+  var warningToast = document.getElementById('toastWarnBridge');
   if (warningToast) {
     warningToast.style.display = 'none';
+    warningToast.classList.remove('activeWarn');
   }
   
-  var eventLogText = document.getElementById('event-log-text');
+  var eventLogText = document.getElementById('system_event_log_line');
   if (eventLogText) {
     eventLogText.innerText = 'System initialized. Awaiting fault trigger...';
   }
   
-  updateVisualInterface();
+  drawGrid();
 }
 
-// Completely resets the UI sliders and the math to their default states
-function resetSimulation() {
+function resetSimNow() {
   clearInterval(mainSimInterval);
   isMainSimActive         = false;
   hasBarrierDropped       = false;
   didBarrierButtonAppear  = false;
-  buttonTrigger.disabled  = false;
+  triggerBtn.disabled  = false;
   
-  isolationBarrierBox.classList.remove('dropped');
-  redArrow1.style.opacity  = 0;
-  redArrow2.style.opacity  = 0;
-  outputResponseTime.innerText = '-';
-  buttonDeploy.style.display = 'none';
+  barrierPhysicalBox.classList.remove('dropped');
+  arrowCell1to2.style.opacity  = 0;
+  arrowCell2to3.style.opacity  = 0;
+  txt_response_time.innerText = '-';
+  emergency_deploy_btn_manual.style.display = 'none';
   
   currentlyDeployedGapIndex = 0;
-  document.getElementById('gap-1').appendChild(isolationBarrierBox);
+  document.getElementById('cellGap1').appendChild(barrierPhysicalBox);
 
-  // Reset the UI Sliders
-  inputInitialTemp.value  = 35;
-  inputCooling.value      = 50;
-  inputDuration.value     = 7;
-  inputMass.value         = 0.5;
-  inputAutoIso.checked    = true;
+  initial_temperature_input.value  = 35;
+  coolingSlider.value      = 50;
+  durationInputBox.value     = 7;
+  slider_mass_value.value         = 0.5;
+  checkAutoIso.checked    = true;
 
-  // Reset the Slider Labels
-  labelInitialTemp.innerText = '35\u00B0C';
-  labelCooling.innerText     = '50%';
-  labelDuration.innerText    = '7s';
-  labelMass.innerText        = '0.5 kg';
+  badge_initial_temp.innerText = '35°C';
+  badge_cooling_value.innerText     = '50%';
+  badge_duration_value.innerText    = '7s';
+  badge_mass_value.innerText        = '0.5 kg';
 
-  // Reset internal math variables
   currentInitialTemp       = 35;
   currentCoolingEff        = 50;
   currentFaultDuration     = 7;
   currentCellMass          = 0.5;
   
-  // Inherit the latest specific heat from the dropdown
-  currentCellSpecificHeat  = chosenBarrierSpecificHeat;
+  currentCellSpecificHeat  = sp_heat;
   currentThermalCapacity   = currentCellMass * currentCellSpecificHeat;
 
-  // Apply the reset
-  recalculateStartingMath();
+  resetMathStats();
+  console.log("[DEBUG LOG] Simulation reset completed. Inputs set to default.");
 }
 
-// --- Run this once when the page loads! ---
-recalculateStartingMath();
-
-// End of DOMContentLoaded wrapper
-});
+resetMathStats();
