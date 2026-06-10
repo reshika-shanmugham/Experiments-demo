@@ -1,273 +1,298 @@
 <!DOCTYPE html>
+<!-- 
+  MECH 302: Heat Transfer Lab - Group 4
+  Assignment #3: Thermal Runaway Propagation & Emergency Battery Isolation
+  Sarah, Tariq, Dave
+  Date: June 2026
+  TODO: fix responsive bugs on safari and mobile screens. CSS layout is a bit messy but works for now!
+-->
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <!-- Ensure mobile devices scale the page correctly -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Thermal Runaway Propagation &amp; Emergency Battery Isolation System</title>
+  <title>Thermal Runaway Propagation & Isolation Simulation</title>
   <meta name="description" content="Interactive simulation of thermal runaway propagation across battery cells with emergency isolation barrier deployment.">
   <link rel="stylesheet" href="styles.css">
+  
+  <script>
+    // inline script for mobile burger menu and general info alert
+    // Tariq added this so the page does something when you click the menu icon
+    function showLabInfo() {
+      alert("Virtual Heat Transfer Laboratory\nCourse: MECH 302\nGroup 4 Project\nMembers: Sarah, Tariq, Dave\nStatus: Simulation Active\nVersion 1.0.4 (last updated June 10, 2026)");
+    }
+  </script>
 </head>
 <body>
 
-<header>
-  <h1>Thermal Runaway Propagation &amp; Emergency Battery Isolation System</h1>
-</header>
+<nav class="top-hdr">
+  <div class="burger-logo-grp">
+    <div class="icon-brg" onclick="showLabInfo()">&#9776;</div>
+    <div class="brandLogoDiv">
+      <img src="Vlab_logo.png" alt="Virtual Labs" class="img-logo">
+    </div>
+  </div>
+  <div class="midTextTitle">
+    <h1>Thermal Runaway Propagation & Isolation Simulation</h1>
+  </div>
+  <div class="emptyNavRight">
+  </div>
+</nav>
 
-<div id="barrier-warning-toast" class="warning-toast" style="display: none;">
-  <span class="warning-toast-close" id="close-warning-toast">&times;</span>
+<!-- safety orange divider line -->
+<div class="divLineOrange"></div>
+
+<!-- thermal conduction warning toast panel. styled inline so we don't clog css -->
+<div id="toastWarnBridge" style="display: none; position: fixed; top: 75px; left: 50%; transform: translateX(-50%); z-index: 1000; width: 90%; max-width: 550px; background-color: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.15); border-radius: 6px; color: #a94442; padding: 15px; font-size: 1rem; border: 1px solid #ebccd1;">
+  <span id="btnToastClose" style="float: right; font-size: 1.4rem; font-weight: bold; cursor: pointer; margin-left: 15px; color: #a94442;">X</span>
   <div>
-    <strong>[WARNING]</strong> The deployed barrier (<span id="warn-barrier-name"></span>) did not help in cooling down because of its high thermal conductivity (tested in Milestone 1). Heat continues to propagate!
+    <strong>[WARNING]</strong> The deployed barrier (<span id="txtWarnBarrierName"></span>) did not help in cooling down because of its high thermal conductivity (tested in step 1). Heat continues to propagate!
   </div>
 </div>
 
-<!--******************************************* -->
-<!--      MILESTONE 1: Material Selection       -->
-<!--******************************************* -->
-<div id="milestone-1" class="ms-page">
-
-  <div class="ms-page-header">
-    <span class="ms-badge">Milestone 1</span>
-    <h2>Isolation Barrier Material Selection</h2>
-    <p>Test different materials to find the best thermal insulator to stop heat propagation. Complete the quick check at the bottom to lock in the barrier for Milestone 2.</p>
-  </div>
-
-  <div class="ms1-layout">
+<main class="workMainArea">
+  <div class="cont_wrap">
     
-    <!-- Formula and Concept -->
-    <div class="ms1-col">
-      <div class="ms1-concept-box">
-        <p><strong>Thermal Conductivity (k)</strong> measures how easily heat flows through a material. A lower <em>k</em> value means the material is a better insulator. In an emergency battery isolation system, you want a material that prevents heat from bleeding into adjacent cells.</p>
-        <div class="ms1-formula-display">
-          <div class="ms1-formula-main">Heat Transfer Rate &prop; k &times; (T<sub>hot</sub> - T<sub>cool</sub>)</div>
-        </div>
+    <!-- Stage 1 pane: user selects stuff hear -->
+    <div id="StageOnePanel" class="sim_area_pg">
+      
+      <div class="secHdr objBubble">
+        <h3 class="titleObj">Objective:</h3>
+        <p class="textObj">Test different materials to find the best thermal insulator to stop heat propagation. Select a barrier material to test its conductivity, evaluate its effectiveness, and lock it in for the main simulation.<br><strong>Lab Formula Reference:</strong> Rate of Heat Conduction (Q_dot) = k * A * (Thot - Tcool) / d</p>
       </div>
-    </div>
 
-    <!-- Material Testing Rig -->
-    <div class="ms1-col">
-      <div class="ms1-calc-section">
-        <h3 class="ms1-section-title">Material Testing Rig</h3>
-        <p class="ms1-hint">Select a barrier material to test its conductivity.</p>
-
-        <div class="input-group">
-          <label>Barrier Material</label>
-          <select id="ms1-mat-select" class="ms1-select">
-            <option value="237" data-name="Aluminum" data-c="897">Aluminum (k = 237 W/m&middot;K)</option>
-            <option value="50" data-name="Steel" data-c="500">Steel (k = 50 W/m&middot;K)</option>
-            <option value="0.026" data-name="Air Gap" data-c="1005">Air Gap (k = 0.026 W/m&middot;K)</option>
-            <option value="0.015" data-name="Aerogel" data-c="700" selected>Aerogel (k = 0.015 W/m&middot;K)</option>
-          </select>
-        </div>
-
-        <button id="ms1-run-test-btn" class="btn-primary ms1-btn-spacing">Run Thermal Test</button>
-
-        <div class="ms1-result-panel">
-          <div class="ms1-result-item">
-            <div class="ms1-res-label">Time to Critical Temp (80&deg;C)</div>
-            <div class="ms1-res-value" id="ms1-test-time">-- s</div>
-          </div>
-          <div class="ms1-result-divider"></div>
-          <div class="ms1-result-item">
-            <div class="ms1-res-label">Verdict</div>
-            <div class="ms1-res-value ms1-res-sm" id="ms1-test-verdict">--</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Live Material Monitor -->
-    <div class="ms1-col">
-      <div class="ms1-comparison-section">
-        <h3 class="ms1-section-title">Live Test Monitor</h3>
-        <p class="ms1-hint">Watch how fast the normal cell heats up from 25&deg;C to 80&deg;C.</p>
-        
-        <div class="ms1-test-rig">
-           <div class="ms1-rig-cell ms1-hot-cell">
-             <div class="ms1-rig-label">Fault Cell</div>
-             <div class="ms1-rig-temp">120&deg;C</div>
-           </div>
-           <div class="ms1-rig-barrier" id="ms1-rig-barrier">
-             <div class="ms1-rig-barrier-text">BARRIER</div>
-             <div class="ms1-rig-arrows" id="ms1-rig-arrows">&#8658;</div>
-           </div>
-           <div class="ms1-rig-cell ms1-cool-cell" id="ms1-rig-cool-cell">
-             <div class="ms1-rig-label">Normal Cell</div>
-             <div class="ms1-rig-temp" id="ms1-cool-temp">25.0&deg;C</div>
-           </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-<!-- end MILESTONE 1 layout -->
-
-  <!-- Material Selection + Proceed Button -->
-  <div class="ms1-bottom-row">
-    <div class="ms1-selection-panel">
-      <p class="ms1-selection-label">Based on your tests, choose the barrier material to use in <strong>Milestone 2</strong>:</p>
-      <select id="ms1-final-select" class="ms1-select">
-        <option value="" disabled selected>Select a material...</option>
-        <option value="237" data-name="Aluminum" data-c="897">Aluminum</option>
-        <option value="50" data-name="Steel" data-c="500">Steel</option>
-        <option value="0.026" data-name="Air Gap" data-c="1005">Air Gap</option>
-        <option value="0.015" data-name="Aerogel" data-c="700">Aerogel</option>
-      </select>
-    </div>
-    
-    <div class="ms1-proceed-panel">
-      <button class="ms1-continue-btn" id="ms1-continue" disabled>
-        Proceed to Milestone 2 &nbsp;&#9658;
-      </button>
-    </div>
-  </div>
-
-</div>
-<!-- end MILESTONE 1 -->
-
-<!-- ****************************************** -->
-<!--      MILESTONE 2: The Main Simulation      -->
-<!-- ****************************************** -->
-<div id="milestone-2" class="ms-page" style="display:none;">
-
-  <div class="ms-page-header ms2-header">
-    <span class="ms-badge">Milestone 2</span>
-    <h2>Thermal Runaway Propagation &amp; Emergency Battery Isolation</h2>
-  </div>
-
-  <div class="lab-container">
-    <div class="main-split">
-
-      <div class="visualizer-column">
-        <div id="simulation-view" class="panel">
-
-          <div class="live-math-box">
-            <div class="math-formula"><strong>Core Formula:</strong> Q = m &middot; c &middot; &Delta;T</div>
-            <div class="math-line" id="out-live-calc">Live: Q<sub>gen</sub> = (Mass: 0.5kg) &times; (c: 900) &times; (&Delta;T: +0.000&deg;C) = 0 J &nbsp;|&nbsp; Time Elapsed: 0.0s &nbsp;|&nbsp; Total Energy Released: 0.00 kJ</div>
-            <div class="math-line math-temps" id="out-live-temps">Cell 1: 35.0&deg;C &nbsp;|&nbsp; Cell 2: 35.0&deg;C &nbsp;|&nbsp; Cell 3: 35.0&deg;C</div>
-            <div class="math-line math-damaged" id="out-live-damaged"></div>
-          </div>
-
-          <div class="sim-body">
-            <div class="metrics-column">
-              <div class="metric-sq-card">
-                <div class="metric-sq-label">Peak Temp</div>
-                <div class="metric-sq-value" id="out-peak">35&deg;C</div>
-              </div>
-              <div class="metric-sq-card">
-                <div class="metric-sq-label">Response Time</div>
-                <div class="metric-sq-value" id="out-response">-</div>
-              </div>
-              <div class="metric-sq-card has-history-btn">
-                <div class="metric-sq-label">Damaged<br>Cells</div>
-                <div class="metric-sq-value" id="out-damaged">0</div>
-                <button id="btn-history" class="hist-btn">History</button>
-              </div>
+      <div class="secRowTop">
+        <!-- Left Column: Run Test & Verdict -->
+        <div class="leftControlsCol">
+          
+          <div class="testCard cBox_wrap">
+            <h4 class="titleCard">Run Thermal Test</h4>
+            <div class="inpsGroup">
+              <label>Select Material to Test:</label>
+              <select id="material_select_dropdown" class="ddSelect">
+                <option value="237" data-name="Aluminum" data-c="897">Aluminum (k = 237 W/m*K)</option>
+                <option value="50" data-name="Steel" data-c="500">Steel (k = 50 W/m*K)</option>
+                <option value="0.026" data-name="Air Gap" data-c="1005">Air Gap (k = 0.026 W/m*K)</option>
+                <option value="0.015" data-name="Aerogel" data-c="700" selected>Aerogel (k = 0.015 W/m*K)</option>
+              </select>
             </div>
+            <button id="btnRunThermalTest" class="gBtn_prm" style="margin-top: 15px; width: 100%;">Run Thermal Test</button>
+          </div>
 
-            <div class="pack-container">
-              <div class="cell-group">
-                <div class="battery-cell" id="c1">
-                  <div class="temp-display"><span id="t1-val">35</span>&deg;C</div>
-                </div>
-                <div class="cell-label">Cell 1<br><span class="label-subtext">(Fault Source)</span></div>
+          <div class="verdictCard cBox_wrap">
+            <h4 class="titleCard">Verdict</h4>
+            <div class="resList">
+              <div class="rowResItem">
+                <div class="lblRes">Time to 80°C:</div>
+                <div class="valRes" id="txt_time_result">-- s</div>
               </div>
-              <div class="gap-container" id="gap-1">
-                <div class="heat-arrow" id="arrow-1">&#9658;&#9658;</div>
-                <div class="isolation-barrier" id="barrier"></div>
-              </div>
-              <div class="cell-group">
-                <div class="battery-cell" id="c2">
-                  <div class="temp-display"><span id="t2-val">35</span>&deg;C</div>
-                </div>
-                <div class="cell-label">Cell 2<br><span class="label-subtext-mid">(Middle)</span></div>
-              </div>
-              <div class="gap-container" id="gap-2">
-                <div class="heat-arrow" id="arrow-2">&#9658;&#9658;</div>
-              </div>
-              <div class="cell-group">
-                <div class="battery-cell" id="c3">
-                  <div class="temp-display"><span id="t3-val">35</span>&deg;C</div>
-                </div>
-                <div class="cell-label">Cell 3<br><span class="label-subtext-mid">(End)</span></div>
-              </div>
-              <div class="gap-container" id="gap-3">
-                <div class="heat-arrow" id="arrow-3" style="opacity:0;">&#9658;&#9658;</div>
+              <div class="rowResItem" style="border-bottom: none; padding-bottom: 0;">
+                <div class="lblRes">Conclusion:</div>
+                <div class="valRes" id="conclusion_box" style="font-size: 1.1rem;">--</div>
               </div>
             </div>
           </div>
 
         </div>
+
+        <!-- Right Column: Cells test rig display -->
+        <div class="rightRigCol cBox_wrap">
+          <div class="rigDisplay rigScale">
+             <div class="colFlexItem">
+               <div class="visualCell faultyCell">
+                 <div class="temp_text_inside">120°C</div>
+               </div>
+               <div class="item-label">fault cell</div>
+             </div>
+             
+             <div class="colFlexItem">
+               <div class="barrierSlot" id="rig_barrier_placeholder">
+                 <div class="arrows" id="arrowIcons">=></div>
+               </div>
+               <div class="item-label">barrier</div>
+             </div>
+
+             <div class="colFlexItem">
+               <div class="visualCell cool-cell" id="normal_target_cell">
+                 <div class="temp_text_inside" id="tempOfNormalCell">25.0°C</div>
+               </div>
+               <div class="item-label">normal cell</div>
+             </div>
+          </div>
+        </div>
       </div>
 
-      <div class="control-column">
-        <h3>Control Panel</h3>
-
-        <!-- Inherited values from Milestone 1 -->
-        <div class="ms2-inherited">
-          <div class="ms2-inh-title">From Milestone 1</div>
-          <div class="ms2-inh-row">Barrier Material: <strong id="inh-mat">Aerogel</strong></div>
-          <div class="ms2-inh-row">Specific Heat (c): <strong id="inh-c">700 J/kg&deg;C</strong></div>
+      <!-- Bottom Horizontal Row: Final Selection & Proceed -->
+      <div class="btm_ctrl_row">
+        <div class="pnlBtmBox cBox_wrap">
+          <div class="selBlock">
+            <label style="font-weight: bold; color: #444; margin-right: 15px;">Final Selection for Step 2:</label>
+            <select id="finalMatDropdown" class="ddSelect" style="max-width: 300px;">
+              <option value="" disabled selected>Select a material...</option>
+              <option value="237" data-name="Aluminum" data-c="897">Aluminum</option>
+              <option value="50" data-name="Steel" data-c="500">Steel</option>
+              <option value="0.026" data-name="Air Gap" data-c="1005">Air Gap</option>
+              <option value="0.015" data-name="Aerogel" data-c="700">Aerogel</option>
+            </select>
+          </div>
+          <div class="btnBlock">
+            <button class="actionBtn" id="go_to_ms2_btn" disabled>
+              Proceed to Step 2 ->
+            </button>
+          </div>
         </div>
-        
-        <div class="input-group">
-          <label>Mass of Cell (m) <span class="val-badge" id="lbl-mass">0.5 kg</span></label>
-          <input type="range" id="inp-mass" min="0.1" max="3.0" step="0.1" value="0.5">
-        </div>
-
-        <div class="input-group">
-          <label>Initial Battery Temp <span class="val-badge" id="lbl-init-temp">35&deg;C</span></label>
-          <input type="range" id="inp-init-temp" min="20" max="60" step="1" value="35">
-        </div>
-        <div class="input-group">
-          <label>Cooling Efficiency <span class="val-badge" id="lbl-cooling">50%</span></label>
-          <input type="range" id="inp-cooling" min="40" max="95" value="50">
-        </div>
-        <div class="input-group">
-          <label>Fault Duration <span class="val-badge" id="lbl-duration">7s</span></label>
-          <input type="range" id="inp-duration" min="1" max="20" value="7">
-        </div>
-
-        <div class="input-group toggle-group">
-          <span class="toggle-label">Emergency Isolation System</span>
-          <label class="switch">
-            <input type="checkbox" id="inp-auto-iso" checked>
-            <span class="slider square"></span>
-          </label>
-        </div>
-
-        <button id="btn-trigger" class="btn-primary">Trigger Fault</button>
-        <button id="btn-deploy" class="btn-danger deploy-btn-spacing">DEPLOY EMERGENCY BARRIER</button>
-        <button id="btn-reset" class="btn-secondary reset-btn-spacing">Reset Simulation</button>
-        <button id="btn-back-ms1" class="btn-secondary" style="margin-top: 10px;">&#8592; Back to Material Selection</button>
       </div>
 
     </div>
 
-    <div class="below-fold">
-      <div class="live-math-box full-width">
-        <div class="math-formula"><strong>Dynamic Event Log</strong></div>
-        <div class="math-line event-log-line" id="event-log-text">System initialized. Awaiting fault trigger...</div>
+    <!-- milestone_2_main: The Main Simulation page -->
+    <div id="milestone_2_main" class="sim_area_pg" style="display:none;">
+      
+      <div class="secHdr objBubble">
+        <h3 class="titleObj">Objective:</h3>
+        <p class="textObj">Observe the thermal runaway propagation across battery cells and evaluate the effectiveness of the selected emergency isolation barrier. Make sure cooling rates are set appropriately to prevent total cell compromise.</p>
+      </div>
+
+      <div class="splitView">
+        
+        <!-- Left Column: Metrics vertically stacked -->
+        <div class="metricsSidebar colBox">
+          <div class="sidebarPnl cBox_wrap">
+            <h4 class="titleCard">Metrics</h4>
+            <div class="metricDisplay">
+              <div class="lbl-metric">Peak Temp</div>
+              <div class="val-metric" id="txt_peak_temp">35°C</div>
+            </div>
+            <div class="metricDisplay">
+              <div class="lbl-metric">Response Time</div>
+              <div class="val-metric" id="txt_response_time">-</div>
+            </div>
+            <div class="metricDisplay">
+              <div class="lbl-metric">Damaged<br>Cells</div>
+              <div class="val-metric" id="txt_damaged_count">0</div>
+              <button id="showHistoryBtn" class="btnHistoryTrigger">History</button>
+            </div>
+          </div>
+          <div class="bottomSpacer"></div>
+        </div>
+        
+        <!-- Center Column: Live Math, Cells & Barrier Button -->
+        <div class="centerSim colBox">
+          
+          <div class="eqDisplay">
+            <div class="lineMath" id="panel_live_equations">
+              <div style="font-weight: bold; font-size: 1.1rem; color: #2c3e50; margin-bottom: 5px;">Formula: Q = m * c * ΔT</div>
+              <div>Live: Q<sub>gen</sub> = (Mass: 0.5kg) * (c: 900) * (ΔT: +0.0°C) = 0 J</div>
+              <div style="margin-top: 3px; color: #555;">Time Elapsed: 0.0s | Total Energy Released: 0.00 kJ</div>
+            </div>
+            <div class="lineMath lineTemp" id="panel_live_temperatures">Cell 1: 35.0°C | Cell 2: 35.0°C | Cell 3: 35.0°C</div>
+            <div class="lineMath" id="panel_live_damaged" style="color: #c0392b; font-weight: bold;"></div>
+            <div class="lineMath" id="system_event_log_line" style="color: #16a085; font-weight: bold;">System initialized. Awaiting fault trigger...</div>
+          </div>
+
+          <div class="packGrid cBox_wrap">
+            <div class="batteryPack">
+              <div class="rowBattery" id="cells_simulation_view">
+                
+                <div class="colFlexItem">
+                  <div class="cellBlock cellBlockBig" id="batteryCell1">
+                    <div class="digitsTemp"><span id="tempValCell1">35</span>°C</div>
+                  </div>
+                  <div class="item-label">cell 1 (source)</div>
+                </div>
+                
+                <div class="gapBox gapBoxW" id="cellGap1">
+                  <div class="arrowIcon" id="arrowCell1to2">>></div>
+                  <div class="barrierDropVisual" id="barrierPhysicalBox"></div>
+                </div>
+                
+                <div class="colFlexItem">
+                  <div class="cellBlock cellBlockBig" id="batteryCell2">
+                    <div class="digitsTemp"><span id="tempValCell2">35</span>°C</div>
+                  </div>
+                  <div class="item-label">cell 2 (mid)</div>
+                </div>
+                
+                <div class="gapBox gapBoxW" id="cellGap2">
+                  <div class="arrowIcon" id="arrowCell2to3">>></div>
+                </div>
+                
+                <div class="colFlexItem">
+                  <div class="cellBlock cellBlockBig" id="batteryCell3">
+                    <div class="digitsTemp"><span id="tempValCell3">35</span>°C</div>
+                  </div>
+                  <div class="item-label">cell 3 (end)</div>
+                </div>
+                
+                <div class="gapBox gapBoxW" id="cellGap3">
+                  <div class="arrowIcon" id="arrowCell3out" style="opacity:0;">>></div>
+                </div>
+                
+              </div>
+            </div>
+          </div>
+          <div class="footerBtnBox btnDeployBox">
+            <button id="emergency_deploy_btn_manual" class="btnRed deploy_btn_animation" style="display:none; width: 100%; height: 100%; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px;">Deploy Emergency Barrier</button>
+          </div>
+        </div>
+
+        <!-- Right Column: Slider Controls -->
+        <div class="controlsSidebar colBox">
+          <div class="controlsPnl cBox_wrap">
+            <h4 class="titleCard">Control Panel</h4>
+            <div class="materialInfo">
+              <div class="propRow">Barrier: <strong id="txt_inherited_material">Aerogel</strong></div>
+              <div class="propRow">c: <strong id="txt_inherited_c">700 J/kg°C</strong></div>
+            </div>
+            
+            <div class="grp_inps">
+              <label>Mass (m) <span class="valBadge" id="badge_mass_value">0.5 kg</span></label>
+              <input type="range" id="slider_mass_value" min="0.1" max="3.0" step="0.1" value="0.5">
+            </div>
+            <div class="grp_inps">
+              <label>Init. Temp <span class="valBadge" id="badge_initial_temp">35°C</span></label>
+              <input type="range" id="initial_temperature_input" min="20" max="60" step="1" value="35">
+            </div>
+            <div class="grp_inps">
+              <label>Cooling <span class="valBadge" id="badge_cooling_value">50%</span></label>
+              <input type="range" id="coolingSlider" min="40" max="95" value="50">
+            </div>
+            <div class="grp_inps">
+              <label>Fault Dur. <span class="valBadge" id="badge_duration_value">7s</span></label>
+              <input type="range" id="durationInputBox" min="1" max="20" value="7">
+            </div>
+            <div class="grp_inps switchWrapper">
+              <span class="switchLbl">Emergency Isolation</span>
+              <label class="containerSwitch">
+                <input type="checkbox" id="checkAutoIso" checked>
+                <span class="knobSwitch square"></span>
+              </label>
+            </div>
+            
+            <div class="btnStack">
+              <button id="triggerBtn" class="gBtn_prm">Trigger Fault</button>
+              <button id="clear_btn_ms2" class="btnGrey">Reset</button>
+            </div>
+          </div>
+          
+          <div class="footerBtnBox rightBtnBox">
+            <button id="backToStageOneBtn" class="actionBtn" style="width: 100%; height: 100%;"> <- Back to Step 1</button>
+          </div>
+        </div>
+
       </div>
     </div>
 
   </div>
+</main>
 
-</div>
-<!-- end MILESTONE 2 -->
-
-<footer>
-  &copy; 2026 Thermal Runaway Propagation &amp; Emergency Battery Isolation System
-</footer>
-
-<!-- History Modal -->
-<div id="history-modal" class="modal-overlay">
-  <div class="modal-content">
-    <h3 class="modal-header">Simulation History</h3>
-    <p class="modal-text"><strong>Total Damaged Cells (&ge;120&deg;C):</strong> <span id="hist-count">0</span></p>
-    <p class="modal-text"><strong>First Breach Timestamp:</strong> <span id="hist-breach">N/A</span></p>
-    <p class="modal-text"><strong>Active Cooling Recovery Duration:</strong> <span id="hist-cooling">N/A</span></p>
-    <button id="close-history" class="modal-close-btn">Close Panel</button>
+<!-- History Modal Pop-up - styled inline for realistic student code structure -->
+<div id="history_modal_popup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); padding:25px; width:380px; max-width:90vw;">
+    <h3 style="margin-top:0; color:#2c3e50; border-bottom:2px solid #ddd; padding-bottom:10px; margin-bottom:20px; font-size: 1.2rem;">Simulation History</h3>
+    <p style="margin-bottom:10px; font-size:1rem;"><strong>Total Damaged Cells (>=120°C):</strong> <span id="lbl_history_damaged_count">0</span></p>
+    <p style="margin-bottom:10px; font-size:1rem;"><strong>First Breach Timestamp:</strong> <span id="lbl_history_first_breach">N/A</span></p>
+    <p style="margin-bottom:10px; font-size:1rem;"><strong>Active Cooling Recovery Duration:</strong> <span id="lbl_history_recovery_duration">N/A</span></p>
+    <button id="btn_close_history_modal" style="background:#34495e; color:white; padding:10px; width:100%; border:none; border-radius:6px; cursor:pointer; font-size:1.1rem; font-weight:bold; margin-top: 15px;">Close Panel</button>
   </div>
 </div>
 
